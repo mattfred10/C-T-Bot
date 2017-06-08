@@ -1,7 +1,9 @@
-	
-	#Eamil Content
+	##
+	## This is plain text. Using python comment notation.
+	##
+	# Eamil Content
     TO = comma3llc@gmail.com
-	#+ date automatically occurs during bot init
+	# + date automatically occurs during bot init
     SUBJECT = SO status logs for 
 	# % date automatically occurs during bot init
     BODY = The status logs for %s are attached. If there is no error log, all of the files were added successfully. Please review all of the files.\n\nCurrently, these files are not being added to the EFACs server.
@@ -25,5 +27,6 @@
     SENDPORT = 587
     SENDMAILSERVER = smtp.office365.com
     
+	#attachment file names are generated during scraping
     #PATH = attachment path - must be a list
-    #attachment file names are generated during scraping
+    

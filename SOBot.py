@@ -7,7 +7,6 @@ import csv
 import datetime
 import os
 
-
 class SOBOT:
     """A mail checking, sending and PDF scraping bot designed to input C&T customer purchase orders into EFACS as sales 
     orders. It should be deployed as a cron job and require no inputs. All activity will be shared via email. There are 
@@ -56,10 +55,10 @@ class SOBOT:
         self.PDFtoText = False
 
         self.leaveunread = False # True = will leave messages unread False - mark as read
-        self.checkPOdictionary = True
-        self.checkdate = True
+        self.POdictionarycheck = True
+        self.datecheck = True
 
-    def debug(self, movepdf=True, PDFtoText=False, leaveunread=False, checkPOdictionary=True, checkdate=True, originfolder='', destfolder='', outputpath=''):
+    def debug(self, movepdf=True, PDFtoText=False, leaveunread=False, POdictionarycheck=True, datecheck=True, originfolder='', destfolder='', outputpath=''):
         """Override some options for debug purposes. Default options are intended to be completely autonomous. Only interaction
         occurs via email. Calling this method without any options will turn on status updates but leave other behavior
         alone.
@@ -77,8 +76,8 @@ class SOBOT:
         self.movepdf = movepdf
         self.PDFtoText = PDFtoText
         self.leaveunread = leaveunread  # True = will leave messages unread False - mark as read
-        self.checkPOdictionary = checkPOdictionary
-        self.checkdate = checkdate
+        self.POdictionarycheck = POdictionarycheck
+        self.datecheck = datecheck
 
         if self.printstatus:
             print('Debug mode')
@@ -126,8 +125,8 @@ class SOBOT:
         if self.printstatus:
             print("Succesfully closed connection.")
 
-    def checkPOdict(self, PONumber, company, podictionary, checkPOdictionary=True):
-        if checkPOdictionary:
+    def checkPOdictionary(self, PONumber, company, podictionary, POdictionarycheck=True):
+        if POdictionarycheck:
             try:
                 if not podictionary[PONumber] == company:
                     return False
@@ -191,7 +190,11 @@ class SOBOT:
 
         if not 1 <= month <= 12:
             errstatus = 'Month out of range.'
-        elif monthdict[month] < day:  # only check this if the month is valid, otherwise there will be a key error
+        elif monthdict[month] < day and month != 2:  # only check this if the month is valid, otherwise there will be a key error
+            errstatus = 'Day out of range.'
+        elif month == 2 and year % 4 != 0 and monthdict[month] < day :  # exception for leap year
+            errstatus = 'Day out of range.'
+        elif month == 2 and monthdict[month] + 1 < day:
             errstatus = 'Day out of range.'
         elif datetime.date(year, month, day) < self.today:  # month and day both need to be valid or datetime throws an exception
             errstatus = 'Past due.'
@@ -199,8 +202,6 @@ class SOBOT:
             errstatus = 'Past due.'
 
         return day, month, year, errstatus  # returns tuple of ints, can change this return or reverse process to produce month names
-
-
 
     def BOTscrape(self):
         """Opens PDF files in the download directory, determines their origin, and finds the important information. 
@@ -346,11 +347,11 @@ class SOBOT:
                     elif float(sumofitems) != float(POTotal):
                         errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
                         # self.logs.append(originalPDF)
-                    elif date[3] and self.checkdate:
+                    elif date[3] and self.datecheck:
                         errors.append([company, PONumber, originalPDF, "Problem with date.", date])
                     else:
                         ####output####
-                        if self.checkPOdict(PONumber, company, podictionary, checkPOdictionary=self.checkPOdictionary):
+                        if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
                             date = (date[0], date[1], date[2]) # Check date above outputs tuple with 4 entries - remake as 3
                             self.POContents.extend(tempitems)
                             processed = True
@@ -416,11 +417,11 @@ class SOBOT:
                     elif quantity * priceper < POTotal - 1 or quantity * priceper > POTotal + 1:
                         errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
                         # self.logs.append(originalPDF)
-                    elif date[3] and self.checkdate:
+                    elif date[3] and self.datecheck:
                         errors.append([company, PONumber, originalPDF, "Problem with date.", date])
                     else:
                         ####output####
-                        if self.checkPOdict(PONumber, company, podictionary, checkPOdictionary=self.checkPOdictionary):
+                        if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
                             date = (date[0], date[1], date[2]) #Check date above outputs tuple with 4 entries - remake as 3
                             self.POContents.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
                             processed=True
@@ -492,7 +493,7 @@ class SOBOT:
                             errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
                             otherError = True
                             break
-                        elif date[3] and self.checkdate:
+                        elif date[3] and self.datecheck:
                             errors.append([company, PONumber, originalPDF, "Problem with date.", date])
                             break
                         else:
@@ -511,7 +512,7 @@ class SOBOT:
                     errors.append([company, PONumber, originalPDF, "Total price not sum of individual items. This error may appear due to a different error in the price checking.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
                 elif not otherError: # actual error stored above
                     #####output#####
-                    if self.checkPOdict(PONumber, company, podictionary, checkPOdictionary=self.checkPOdictionary):
+                    if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
                         self.POContents.extend(tempitems)
                         processed = True
                     else:
@@ -579,7 +580,7 @@ class SOBOT:
                             # self.logs.append(originalPDF)
                             otherError = True
                             break
-                        elif date[3] and self.checkdate:
+                        elif date[3] and self.datecheck:
                             errors.append([company, PONumber, originalPDF, "Problem with date.", date])
                             break
                         else:
@@ -597,7 +598,7 @@ class SOBOT:
                                    'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
                 elif not otherError:  # actual error stored above
                     #####output#####
-                    if self.checkPOdict(PONumber, company, podictionary, checkPOdictionary=self.checkPOdictionary):
+                    if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
                         self.POContents.extend(tempitems)
                         processed = True
                     else:
@@ -691,7 +692,7 @@ class SOBOT:
                                 errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
                                 otherError = True
                                 break
-                            elif date[3] and self.checkdate:
+                            elif date[3] and self.datecheck:
                                 errors.append([company, PONumber, originalPDF, "Problem with date.", date])
                                 break
                             else:
@@ -709,7 +710,7 @@ class SOBOT:
                         errors.append([company, PONumber, originalPDF, "Total price not sum of individual items.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
                     elif not otherError:
                         ####output####
-                        if self.checkPOdict(PONumber, company, podictionary, checkPOdictionary=self.checkPOdictionary):
+                        if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
                             self.POContents.extend(tempitems)
                             processed=True
                         else:
@@ -775,7 +776,7 @@ class SOBOT:
 
 if __name__ == "__main__":
     bot = SOBOT()
-    bot.debug(checkPOdictionary=False, checkdate=False)  # leaveunread=True checkPOdictionary=False
+    bot.debug(POdictionarycheck=False, datecheck=False)  # leaveunread=True POdictionarycheck=False
     bot.BOTfetch()
     bot.BOTscrape()
     bot.BOTsend()

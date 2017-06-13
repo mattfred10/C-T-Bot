@@ -6,6 +6,7 @@ import glob
 import csv
 import datetime
 import os
+import logging
 
 class SOBOT:
     """A mail checking, sending and PDF scraping bot designed to input C&T customer purchase orders into EFACS as sales 
@@ -15,6 +16,8 @@ class SOBOT:
 
     def __init__(self, optionsfile='.\\SOBotSettings\\SOBotSettings.txt'):
         """Load options"""
+        logging.basicConfig(filename='myapp.log', level=logging.INFO)
+        logging.info('Started')
 
         # Get date and subsequent path creation
         self.today = datetime.date.today()
@@ -58,6 +61,13 @@ class SOBOT:
         self.POdictionarycheck = True
         self.datecheck = True
 
+    def ErrorLog(self):
+        """I want to log errors and make sure that program continues to operate correctly"""
+
+        pass
+
+
+
     def debug(self, movepdf=True, PDFtoText=False, leaveunread=False, POdictionarycheck=True, datecheck=True, originfolder='', destfolder='', outputpath=''):
         """Override some options for debug purposes. Default options are intended to be completely autonomous. Only interaction
         occurs via email. Calling this method without any options will turn on status updates but leave other behavior
@@ -95,35 +105,45 @@ class SOBOT:
 
         fetcher = FetchMail(self.FETCHMAILSERVER, self.BOTACCOUNT, self.BOTPASSWORD, self.leaveunread, download_folder=self.unprocessedpath)
         if self.printstatus:
-            print("Succesfully connected to imap server.")
+            print("Successfully connected to imap server.")
         emails = fetcher.fetch_unread_messages()
+        numattachments = len(emails)
         if self.printstatus:
-            print("Succesfully fetched emails.")
-        for entry in emails:
-            fetcher.save_attachment(entry)
-        if self.printstatus and emails:
-            print("Succesfully saved attachents.")
+            print("Successfully fetched %s emails." % numattachments)  # probably want to log this message
+        if numattachments:
+            skipped = []
+            for entry in emails:
+                skipped.extend(fetcher.save_attachment(entry))
+            if self.printstatus:
+                print(skipped)
+            if self.printstatus and emails:
+                print("Successfully saved attachments.")
         fetcher.close_connection()
         if self.printstatus:
-            print("Succesfully received mail.")
+            print("Successfully received mail.")
+
+        return numattachments
+
+
 
     def BOTsend(self):
         """Send log files and unprocessed PDFs to the recipients in the settings file"""
         sender = SendMail(self.SENDMAILSERVER, self.SENDPORT, self.BOTACCOUNT, self.BOTPASSWORD)
         if self.printstatus:
-            print("Succesfully connected to smtp server.")
+            print("Successfully connected to smtp server.")
         sender.composemsg(self.TO, self.SUBJECT, self.BODY, self.logs)
         if self.printstatus:
-            print("Succesfully composed message.")
+            print("Successfully composed message.")
         sender.open_connection()
         if self.printstatus:
-            print("Succesfully opened connection.")
+            print("Successfully opened connection.")
         sender.send()
         if self.printstatus:
-            print("Succesfully sent mail.")
+            print("Successfully sent mail.")
         sender.close_connection()
         if self.printstatus:
-            print("Succesfully closed connection.")
+            print("Successfully closed connection.")
+        logging.info('Finished')
 
     def checkPOdictionary(self, PONumber, company, podictionary, POdictionarycheck=True):
         if POdictionarycheck:
@@ -138,7 +158,8 @@ class SOBOT:
 
     def checkDate(self, datetuple):
         """Scraper generates date tuples. This method checks that they make sense and converts words (e.g., jul, JUL, 
-        Jul, July, JULY) to the same format (DD-MM-YY)"""
+        Jul, July, JULY) to the same format (DD-MM-YY). Dates should be collected in the correct order by the 
+        scraper."""
 
         errstatus = ''  #empty string to store errors. if it exists, throw error in scraper
 
@@ -776,7 +797,8 @@ class SOBOT:
 
 if __name__ == "__main__":
     bot = SOBOT()
-    bot.debug(POdictionarycheck=False, datecheck=False)  # leaveunread=True POdictionarycheck=False
-    bot.BOTfetch()
+    bot.debug(originfolder='./', destfolder='./', PDFtoText=True)  # leaveunread=True POdictionarycheck=False
+    #bot.BOTfetch()
     bot.BOTscrape()
-    bot.BOTsend()
+    #bot.BOTsend()
+

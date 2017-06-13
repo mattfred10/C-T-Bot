@@ -34,6 +34,7 @@ class FetchMail:
         download folder specified at init (default is working directory/year/month/day)
         iterator can be used to ensure unique names in a session if emails have same attachment names (e.g., doc1.pdf)
         """
+        skipped = []
 
         att_path = "No attachment found."
         for part in msg.walk():
@@ -41,21 +42,29 @@ class FetchMail:
                 continue
             if part.get('Content-Disposition') is None:
                 continue
+
             filename = part.get_filename()
+            if filename is None:  # appears due to "outlook item files" i.e., tables in emails - safe to ignore?
+                continue
+
             for file in filename.split('\n'):
                 fnparts = filename.split('.')
 
-                if 'Terms for Goods  Services' in fnparts[0] or 'invoice' in fnparts[0].lower() or 'Payment Advice Note' in fnparts[0]: #don't want terms documents or invoices
-                    continue
+                if 'Terms for Goods  Services' in fnparts[0] or 'invoice' in fnparts[0].lower() or 'Payment Advice Note' in fnparts[0] or 'scan' in fnparts[0].lower(): #don't want terms documents or invoices or scanned documents
+                    skipped.append(fnparts[0] + '.' + fnparts[1].lower())
                 elif fnparts[1].lower() == 'pdf':
-                    att_path = os.path.join(self.path + fnparts[0] + '.pdf') #adding i so that each file is unique - many come in exactly as 'Doc1.pdf')
+                    att_path = os.path.join(self.path + fnparts[0] + '.pdf')  # adding i s.t. file is unique !'Doc1.pdf'
                     i = 0
-                    while os.path.isfile(att_path): #don't overwrite
+                    while os.path.isfile(att_path):  # don't overwrite
                         i += 1
                         att_path = os.path.join(self.path + fnparts[0] + '-' + str(i) + '.pdf')
                     fp = open(att_path, 'wb')
                     fp.write(part.get_payload(decode=True))
                     fp.close()
+                else:
+                    skipped.append(fnparts[0] + '.' + fnparts[1].lower())
+
+        return skipped
 
     def fetch_unread_messages(self):
         """
@@ -64,9 +73,10 @@ class FetchMail:
         emails = []
         (result, messages) = self.connection.search(None, 'UnSeen')
         if result == "OK":
+            print(messages)
             for message in messages[0].split():
 
-                #print(message)
+                print(message)
                 try:
                     ret, data = self.connection.fetch(message,'(RFC822)')
                 except:

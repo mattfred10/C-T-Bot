@@ -2,8 +2,52 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de57c925-2266-42de-949c-83bd78e1447e" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/17-06-08_1133_ErrorLog.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/17-06-08_1133_SalesOrders.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_FRON01_40158.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_GEC01_620096367.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_P115357.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_P115358.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK23465.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25049.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25095.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25141.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25154.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25253.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25380.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25389.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25442.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25444.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25565.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25590.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25593.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25598.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25646.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25647.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25694.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26018.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26040.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26187.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26279.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26320.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26644.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK27043.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503800596.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503809544.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503827000.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503870730.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25083.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25219.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25445.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25501.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK26909.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_vest04_4503814264.pdf" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/accounts1.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/accounts1.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBot.py" afterPath="$PROJECT_DIR$/SOBot.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBotSettings/PODictionary.csv" afterPath="$PROJECT_DIR$/SOBotSettings/PODictionary.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBotSettings/PriceDictionary.csv" afterPath="$PROJECT_DIR$/SOBotSettings/PriceDictionary.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/email_services.py" afterPath="$PROJECT_DIR$/email_services.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,12 +62,12 @@
       <file leaf-file-name="SOBot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SOBot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="357" column="29" lean-forward="true" selection-start-line="357" selection-start-column="29" selection-end-line="357" selection-end-column="29" />
+            <state relative-caret-position="478">
+              <caret line="804" column="0" lean-forward="true" selection-start-line="804" selection-start-column="0" selection-end-line="804" selection-end-column="0" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
-                <element signature="e#12971#13178#0" expanded="false" />
-                <element signature="e#13244#13437#0" expanded="false" />
+                <element signature="e#13613#13820#0" expanded="false" />
+                <element signature="e#13886#14079#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -32,8 +76,8 @@
       <file leaf-file-name="email_services.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/email_services.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1020">
-              <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+            <state relative-caret-position="629">
+              <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
               <folding>
                 <element signature="e#2#14#0" expanded="true" />
               </folding>
@@ -45,7 +89,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>UnprocessedSOs</find>
       <find>rocessedSOs</find>
       <find>rocessed</find>
       <find>No price</find>
@@ -75,6 +118,7 @@
       <find>checkPOdictionary</find>
       <find>checkPOdic</find>
       <find>checkPOdict(</find>
+      <find>botf</find>
     </findStrings>
     <replaceStrings>
       <replace>nodictentry</replace>
@@ -123,7 +167,6 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -138,6 +181,7 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -345,13 +389,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-1928" y="96" width="1936" height="1056" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1015625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -382,8 +427,74 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#12971#13178#0" expanded="false" />
-            <element signature="e#13244#13437#0" expanded="false" />
+            <element signature="e#13613#13820#0" expanded="false" />
+            <element signature="e#13886#14079#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1020">
+          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+          <folding>
+            <element signature="e#2#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#13613#13820#0" expanded="false" />
+            <element signature="e#13886#14079#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1139">
+          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+          <folding>
+            <element signature="e#2#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#13613#13820#0" expanded="false" />
+            <element signature="e#13886#14079#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1139">
+          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+          <folding>
+            <element signature="e#2#14#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#13613#13820#0" expanded="false" />
+            <element signature="e#13886#14079#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -442,8 +553,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/email_services.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1020">
-          <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+        <state relative-caret-position="629">
+          <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
           <folding>
             <element signature="e#2#14#0" expanded="true" />
           </folding>
@@ -452,12 +563,12 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/SOBot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="357" column="29" lean-forward="true" selection-start-line="357" selection-start-column="29" selection-end-line="357" selection-end-column="29" />
+        <state relative-caret-position="478">
+          <caret line="804" column="0" lean-forward="true" selection-start-line="804" selection-start-column="0" selection-end-line="804" selection-end-column="0" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#12971#13178#0" expanded="false" />
-            <element signature="e#13244#13437#0" expanded="false" />
+            <element signature="e#13613#13820#0" expanded="false" />
+            <element signature="e#13886#14079#0" expanded="false" />
           </folding>
         </state>
       </provider>

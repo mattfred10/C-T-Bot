@@ -6,7 +6,9 @@ import glob
 import csv
 import datetime
 import os
-import logging
+import xlrd
+import xlwt
+import sys, traceback
 
 class SOBOT:
     """A mail checking, sending and PDF scraping bot designed to input C&T customer purchase orders into EFACS as sales 
@@ -14,43 +16,119 @@ class SOBOT:
     many routines built in for trouble shooting and modification.    
     """
 
-    def __init__(self, optionsfile='.\\SOBotSettings\\SOBotSettings.txt'):
+    def __init__(self, optionsfile='./SOBotSettings/SOBotSettings.txt'):
         """Load options"""
-        logging.basicConfig(filename='myapp.log', level=logging.INFO)
-        logging.info('Started')
 
         # Get date and subsequent path creation
         self.today = datetime.date.today()
         self.datestring = self.today.strftime("%Y-%m-%d")
-        self.datepath = self.today.strftime('%Y\\%m\\%d\\')
-        self.processedpath = self.datepath+'ProcessedSOs\\'
-        self.unprocessedpath = self.datepath+'UnprocessedSOs\\'
+        self.datepath = self.today.strftime('%Y/%m/%d/')
+        self.processedpath = self.datepath + 'ProcessedSOs/'
+        self.unprocessedpath = self.datepath + 'UnprocessedSOs/'
         if not os.path.exists(self.processedpath):
             os.makedirs(self.processedpath)
         if not os.path.exists(self.unprocessedpath):
             os.makedirs(self.unprocessedpath)
 
-        # self.POContents is the output. Create the header here.
-        self.POContents = [['Company', 'PO Number', 'Due Date', 'Item Number', 'Quantity', 'Price Per Item', 'Order Total']]
-        # Store list of output files for attachment to email - bad dict entries, error log, bad pdfs, and good SOs
-        self.logs = []
-
         with open(optionsfile, 'r') as options:
             opt = ''.join(options.readlines())
 
-            self.LEADTIME = int(re.search(r'LEADTIME[ =]+([\S]+)', opt)[1])
+            self.MAXLEADTIME = int(re.search(r'MAXLEADTIME[ ]*=[ ]*([\S]+)', opt)[1])  # including [ ]*=[ ]* so that users have some foregiveness in the settings file
+            # Minimum leadtime uses a dictionary
+            #self.MINLEADTIME = int(re.search(r'MINLEADTIME[ =]+([\S]+)', opt)[1])
 
-            self.TO = re.search(r'TO[ =]+([\S]+)', opt)[1]
-            self.SUBJECT = re.search(r'SUBJECT[ =]+([A-z0-9 .,]+)', opt)[1] + self.datestring
-            self.BODY = re.search(r'BODY[ =]+([A-z0-9 .,%]+)', opt)[1] % self.datestring
+            self.TO = re.search(r'TO[ ]*=[ ]*([\S]+)', opt)[1]
+            self.SUBJECT = re.search(r'SUBJECT[ ]*=[ ]*([A-z0-9 .,]+)', opt)[1] + self.datestring
+            self.BODY = re.search(r'BODY[ ]*=[ ]*([A-z0-9 .,%]+)', opt)[1] % self.datestring
 
-            self.PRICEDICTIONARY = re.search(r'PRICEDICTIONARY[ =]+([\S]+)', opt)[1]
-            self.PODICTIONARY = re.search(r'PODICTIONARY[ =]+([\S]+)', opt)[1]
-            self.BOTACCOUNT = re.search(r'BOTACCOUNT[ =]+([\S]+)', opt)[1]
-            self.BOTPASSWORD = re.search(r'BOTPASSWORD[ =]+([\S]+)', opt)[1]
-            self.FETCHMAILSERVER = re.search(r'FETCHMAILSERVER[ =]+([\S]+)', opt)[1]
-            self.SENDPORT = re.search(r'SENDPORT[ =]+([\S]+)', opt)[1]
-            self.SENDMAILSERVER = re.search(r'SENDMAILSERVER[ =]+([\S]+)', opt)[1]
+            self.BOTACCOUNT = re.search(r'BOTACCOUNT[ ]*=[ ]*([\S]+)', opt)[1]
+            self.BOTPASSWORD = re.search(r'BOTPASSWORD[ ]*=[ ]*([\S]+)', opt)[1]
+            self.FETCHMAILSERVER = re.search(r'FETCHMAILSERVER[ ]*=[ ]*([\S]+)', opt)[1]
+            self.SENDPORT = re.search(r'SENDPORT[ ]*=[ ]*([\S]+)', opt)[1]
+            self.SENDMAILSERVER = re.search(r'SENDMAILSERVER[ ]*=[ ]*([\S]+)', opt)[1]
+
+            LEADTIMEDICTIONARY = re.search(r'LEADTIMEDICTIONARY[ ]*=[ ]*([\S]+)', opt)[1]  # chosen by user
+            PRICEDICTIONARY = re.search(r'PRICEDICTIONARY[ ]*=[ ]*([\S]+)', opt)[1]  # needs to be checked so not auto written
+            self.PODICTIONARY = re.search(r'PODICTIONARY[ ]*=[ ]*([\S]+)', opt)[1]  # used to write file at end.
+            QUANTITYDICT = re.search(r'QUANTITYDICT[ ]*=[ ]*([\S]+)', opt)[1]
+
+            NUMVESTASTURBINES = re.search(r'NUMVESTTURBINES[ ]*=[ ]*([\S]+)', opt)[1]
+            VESTASPARTFORECAST = re.search(r'VESTASPARTFORECAST[ ]*=[ ]*([\S]+)', opt)[1]
+
+            MFPARTS = re.search(r'MFPARTS[ ]*=[ ]*([\S]+)', opt)[1]
+
+            self.stockprojectionpath =  re.search(r'STOCKPROJECTIONPATH[ ]*=[ ]*([\S]+)', opt)[1]
+
+        # Create output and logging lists
+        # self.POContents is the so output. Create the header here.
+        self.POContents = [['Company', 'PO Number', 'Due Date', 'Item Number', 'Quantity', 'Price Per Item', 'Order Total']]
+        # GRN is the invoice output
+        self.GRN = [['Supplier', 'Date', 'Invoice Number', 'PO Number', 'Item Number', 'Quantity']]
+        # Store a list of POs with bad entries and their self.errors.
+        self.errors = []
+        # Specific list of unaccounted for company/part/price pairs
+        self.nopricedictentry = []
+        # Store unaccounted for quantity dictionary entries
+        self.noquantitydictentry = []
+        # Store list of output files for attachment to email - bad dict entries, error log, bad pdfs, and good SOs
+        self.logs = []
+        # Store list of open orders for checking with StockPredictor
+        self.VESTSJOopenorders = []
+        self.HYopenorders = []
+        self.GEopenorders = []
+
+        # Create dictionaries used throughout
+        # Dictionary of minimum lead times for POs key: company, value: time in days
+        # Throws as error to alert account executive
+        self.leadtimedictionary = {}
+        with open(LEADTIMEDICTIONARY) as dictfile:
+            dictentries = csv.reader(dictfile)
+            for line in dictentries:
+                self.leadtimedictionary[line[0]] = line[1]
+
+        # Ensure that PO item prices match correct values
+        # In the case of hyster, this is required.
+        self.pricedictionary = {}
+        with open(PRICEDICTIONARY) as dictfile:
+            dictentries = csv.reader(dictfile)
+            for line in dictentries:
+                # use tuple of company (i.e., VEST01, etc) and item
+                # companies have different prices
+                self.pricedictionary[(line[0], line[1])] = line[2]
+
+        # Similarly, create a list of previous POs. Don't want duplicate entries in EFACS
+        # This seems better than just checking if a tuple exists for the pair
+        # Can't use PONum:Company as originally planned in case companies have the same PONumber, so need to use tuple
+        # try to change language throughout to reflect this change.
+        self.polist = []
+        with open(self.PODICTIONARY) as podictfile:
+            podictentries = csv.reader(podictfile)
+            for item in podictentries:
+                self.polist.append((item[0], item[1]))
+
+        # Create dictionary of part number : box quantities
+        self.quantitydict = {}
+        with open(QUANTITYDICT) as qtdictfile:
+            qtdictentries = csv.reader(qtdictfile)
+            for item in qtdictentries:
+                self.quantitydict[item[0]]= item[1]
+
+        # Create dictionary of vestas part forecasts
+        self.vestasforecast = {}
+        with open(VESTASPARTFORECAST) as forecast:
+            forecastentries = csv.reader(forecast)
+            for item in forecastentries:
+                self.vestasforecast[item[0]] = int(item[1]) * NUMVESTASTURBINES  # Forecasted number of parts
+
+        # Import list of manufactured parts and the component parts
+        self.mfparts = []
+        with open(MFPARTS) as mf:
+            mfentries = csv.reader(mf)
+            for item in mfentries:
+                self.mfparts.append(item)  # Info about manufactured parts
+
+        # Create Excel workbook for output
+        self.book = xlwt.Workbook()  # Create a workbook
 
         # debug options
         self.printstatus = False
@@ -61,19 +139,12 @@ class SOBOT:
         self.POdictionarycheck = True
         self.datecheck = True
 
-    def ErrorLog(self):
-        """I want to log errors and make sure that program continues to operate correctly"""
-
-        pass
-
-
-
     def debug(self, movepdf=True, PDFtoText=False, leaveunread=False, POdictionarycheck=True, datecheck=True, originfolder='', destfolder='', outputpath=''):
         """Override some options for debug purposes. Default options are intended to be completely autonomous. Only interaction
         occurs via email. Calling this method without any options will turn on status updates but leave other behavior
         alone.
-        
-        N.B.: leaveunread=True occasionally causes an exception during mail checking.
+
+        N.B.: leaveunread=True occasionally causes an exception during mail checking. I haven't been able to track down the cause.
         """
         if originfolder:
             self.unprocessedpath = originfolder
@@ -92,14 +163,14 @@ class SOBOT:
         if self.printstatus:
             print('Debug mode')
 
-    def BOTfetch(self):
-        """Download attachments fetching functions. 
-        
+    def fetchMail(self):
+        """Download attachments fetching functions.
+
         The FetchMail class is specialized for this bot:
-        1) Only downloads pdfs
-        2) Filters and does not download invoices or 'Terms for Goods Services' files
+        1) Only downloads pdf and xls
+        2) Filters and does not download invoices or 'Terms for Goods Services' files or some scanned files
         3) Appends -i (where i is simply iterated until it doesn't match) to files with the same name (common in this use).
-        
+
         It could be generalized further if necessary.
         """
 
@@ -124,11 +195,13 @@ class SOBOT:
 
         return numattachments
 
+    def sendMail(self):
+        """Send log files and unprocessed PDFs to the recipients in the settings file.
+        """
 
-
-    def BOTsend(self):
-        """Send log files and unprocessed PDFs to the recipients in the settings file"""
-        sender = SendMail(self.SENDMAILSERVER, self.SENDPORT, self.BOTACCOUNT, self.BOTPASSWORD)
+        # We split '/services' off the bot account and just send as accounts1@ for now.
+        # This method should be safe if it's every changed to a real email address
+        sender = SendMail(self.SENDMAILSERVER, self.SENDPORT, self.BOTACCOUNT.split('/')[0], self.BOTPASSWORD)
         if self.printstatus:
             print("Successfully connected to smtp server.")
         sender.composemsg(self.TO, self.SUBJECT, self.BODY, self.logs)
@@ -137,31 +210,40 @@ class SOBOT:
         sender.open_connection()
         if self.printstatus:
             print("Successfully opened connection.")
-        sender.send()
-        if self.printstatus:
-            print("Successfully sent mail.")
-        sender.close_connection()
-        if self.printstatus:
-            print("Successfully closed connection.")
-        logging.info('Finished')
+        try:
+            sender.send()
+            if self.printstatus:
+                print("Successfully sent mail.")
+            sender.close_connection()
+            if self.printstatus:
+                print("Successfully closed connection.")
+        except:
+            print('Send Mail Timeout')
+            traceback.print_exc(file=sys.stdout)
+            errorReporter = SendMail(self.SENDMAILSERVER, self.SENDPORT, self.BOTACCOUNT.split('/')[0], self.BOTPASSWORD)
+            errorReporter.composemsg(self.TO, self.SUBJECT, "Email server timed out, likely because there were many abnormal files to upload. Process should have completed up to report generation. Please check the server for the files.")
+            errorReporter.open_connection()
+            errorReporter.send()
+            errorReporter.close_connection()
 
-    def checkPOdictionary(self, PONumber, company, podictionary, POdictionarycheck=True):
-        if POdictionarycheck:
-            try:
-                if not podictionary[PONumber] == company:
-                    return False
-            except:
-                podictionary[PONumber] = company
+    # Look up sets instead of list (hash like dictionary but no value)
+    def checkPOdictionary(self, PONumber, company):
+        """Checks the PO dictionary and adds any missing entries"""
+        if self.POdictionarycheck:
+            if (PONumber,company) in self.polist:
+                return False
+            else:
+                self.polist.append((PONumber, company))
                 return True
         else:
             return True
 
-    def checkDate(self, datetuple):
-        """Scraper generates date tuples. This method checks that they make sense and converts words (e.g., jul, JUL, 
-        Jul, July, JULY) to the same format (DD-MM-YY). Dates should be collected in the correct order by the 
+    def checkDate(self, datetuple, company):
+        """Scraper generates date tuples. This method checks that they make sense and converts words (e.g., jul, JUL,
+        Jul, July, JULY) to the same format (DD-MM-YY). Dates should be collected in the correct order by the
         scraper."""
 
-        errstatus = ''  #empty string to store errors. if it exists, throw error in scraper
+        errstatus = ''  #empty string to store self.errors. if it exists, throw error in scraper
 
         # Using a list here and going to convert using indicies. dictinoary might be better?
         monthlist = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
@@ -196,7 +278,7 @@ class SOBOT:
         month = str(datetuple[1])
         year = int(datetuple[2])
 
-        if year < 2000:
+        if year < 100:
             year = year + 2000
 
         # Determine if the date is an abbreviation and convert it to a number
@@ -217,58 +299,181 @@ class SOBOT:
             errstatus = 'Day out of range.'
         elif month == 2 and monthdict[month] + 1 < day:
             errstatus = 'Day out of range.'
-        elif datetime.date(year, month, day) < self.today:  # month and day both need to be valid or datetime throws an exception
-            errstatus = 'Past due.'
-        elif (datetime.date(year, month, day) - self.today) > datetime.timedelta(days=self.LEADTIME):  # month and day both need to be valid or datetime throws an exception
-            errstatus = 'Past due.'
+        elif datetime.date(year, month, day) < self.today + datetime.timedelta(days=int(self.leadtimedictionary[company])):  # month and day both need to be valid or datetime throws an exception
+            errstatus = 'Due date is earlier than allowed range.'
+        elif (datetime.date(year, month, day) - self.today) > datetime.timedelta(days=self.MAXLEADTIME):  # month and day both need to be valid or datetime throws an exception
+            errstatus = 'Due date more than ' + self.MAXLEADTIME + ' days in the future.'
 
-        return day, month, year, errstatus  # returns tuple of ints, can change this return or reverse process to produce month names
+        return day, month, year, errstatus  # consider refactoring to return 3 tuple if good and 4 tuple if bad - rather than check if date[3] check len(date)
+                                            # There are many places below where we do (date[0], date[1], date[2]) would be a lot cleaner
 
-    def BOTscrape(self):
-        """Opens PDF files in the download directory, determines their origin, and finds the important information. 
-        
-        Outputs between 1 and 3 files depending on whether there are errors and the type of error:
+    def checkQuantities(self, partnumber, quantity):
+        try:
+            print('here')
+            if quantity % float(self.quantitydict[partnumber]) != 0:
+                print('NOT')
+                return "The box quantity is incorrect for part number " + partnumber
+        except KeyError:
+            self.noquantitydictentry.append([partnumber, quantity])
+            return None # Just keeping track for now
+
+        return None
+
+    def checkPriceDictionary(self, company, partnumber, priceper):
+        try:
+            if float(self.pricedictionary[(company, partnumber)]) != float(priceper):
+                return 'Price does not match price dictionary entry., Got: ' + str(priceper) + ', Expected: ' + self.pricedictionary[(company, partnumber)]
+        except KeyError:
+            self.nopricedictentry.append([company, partnumber, priceper])
+            return 'No entry for company/part number. See attached NoPriceDictionaryEntry file.'
+
+        return None
+
+    def parseExcel(self):
+        """
+        Hyster Yale POs come in excel format. Collect data from these excel files.
+        Files contain open orders as well.
+        """
+
+        for badxl in glob.glob(self.unprocessedpath + '*.xls'):  # Check if unknown file
+            print("ERROR: Unexpected excel 2003 file :" + badxl)
+            self.errors.append(['unknown', 'Many', badxl, "Unexpected excel file type."])
+            self.logs.append(badxl)
+
+        for excelFile in glob.glob(self.unprocessedpath + '*.xlsx'):  # Should be xlsx
+            if self.printstatus:
+                print(excelFile)
+            processed = False
+
+            s = xlrd.open_workbook(excelFile).sheet_by_index(0)  # Only need first sheet
+            data = []
+
+            for row in range(s.nrows):
+                values = []
+                for col in range(s.ncols):
+                    values.append(str(s.cell(row, col).value))
+                data.append(values)
+
+            # This code should be sufficient to prevent index error below
+            if not len(data) or len(data[0]) < 2:  # Throws error on empty excel file and moves on to next file.
+                self.errors.append(['unknown', 'Many', excelFile,"Empty excel file."])
+                continue
+
+            if 'Report Generated' in data[0][0]:
+                company = 'HYST01'
+                for row in data[1:]:
+                    PONumber = row[1][:10]
+                    tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
+                    date = self.checkDate((tempdate[2], tempdate[1], tempdate[0]), company)
+
+                    partnumber = row[2]
+                    quantity = float(row[9])
+
+                    qtychk = self.checkQuantities(partnumber, quantity)
+                    #
+                    # Excel and python both like to trim leading 0s from the part numbers
+                    # Casting as string when reading the csv and writing to the dict didn't help either
+                    # Manually adding check here to improve usability
+                    #
+                    # Some serious EAFP programming here, but I have no idea how these lists will be altered in the future.
+                    # 
+                    # Consider moving this into checkprices funnction
+                    #
+                    try:
+                        priceper =  float(self.pricedictionary[(company, partnumber)])
+                    except KeyError:
+                        try:
+                            partnumber = '0' + partnumber
+                            priceper = float(self.pricedictionary[(company, partnumber)])
+                        except KeyError:
+                            try:
+                                partnumber = partnumber.lstrip('0')
+                                priceper = float(self.pricedictionary[(company, partnumber)])
+                            except KeyError:
+                                self.errors.append([company, PONumber, excelFile, "The indicated PO has no price for part number: " + partnumber])
+                    POTotal = priceper * quantity
+                    
+                    # Date error gets thrown for both open and new orders
+                    if date[3]:
+                        self.errors.append([company, PONumber, excelFile, "The indicated PO has a date issue.", date])
+                    #However, we only check quantity on new orders
+                    elif self.checkPOdictionary(row[1], company):  # Need to use entire PO number because line items take POnum001, POnum002, etc. and don't want false matches
+                        if qtychk:
+                            self.errors.append([company, PONumber, excelFile, qtychk])
+                        else:
+                            processed = True
+                            self.POContents.append([company, PONumber, (date[2], date[1], date[0]), partnumber, quantity, priceper, POTotal])
+                    else:
+                        self.HYopenorders.append([partnumber, PONumber, (date[2],date[1],date[0]), quantity])
+
+                # check if a folder has been made for a day - if not, create it
+                if self.movepdf and processed:
+                    try:
+                        os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_OO.xlsx')
+                    except:
+                        # In general, this message should not appear. Duplicates should be blocked by PONumber dictionary
+                        # Put here to avoid crashes during debugging (don't check PO dictionary flag)
+                        self.errors.append([company, 'Many', excelFile, "This file is a duplicate of an already processed file. It was not moved."])
+                elif not processed:
+                    self.logs.append(excelFile)
+
+            elif 'Vendor' in data[0][0]:
+                company = 'SJOL-VEST'
+                for row in data[1:]:
+                    tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
+                    # [part, po, date, quantity]
+                    self.VESTSJOopenorders.append([row[3], row[2], (tempdate[0],tempdate[1],tempdate[2]), row[7]])
+                try:
+                    os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_OO.xlsx')
+                except FileExistsError:
+                    self.errors.append([company, 'Many', excelFile, "This appears to be a duplicate open order file."])
+
+            elif 'Order' in data[0][0]:
+                company = 'GE'
+                for row in data[1:]:
+                    try:  # GE empties this cell sometimes. It's shown as various length whitespace and empty. Just catch valueerror
+                        tempdate = xlrd.xldate_as_tuple(float(row[14]), 0)
+                        self.GEopenorders.append([row[9], row[0], (tempdate[0], tempdate[1], tempdate[2]), row[4]])
+                    except ValueError:
+                        self.errors.append(
+                            [company, row[0], excelFile, "Past due or date error."])
+                try:
+                    os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_OO.xlsx')
+                except:
+                    self.errors.append([company, 'Many', excelFile, "This appears to be a duplicate open order file."])
+
+            elif 'Ningbo' in data[0][1]:
+                company = 'coop01'
+                invonum = data[6][5].replace('INV. NO:','')
+                date = self.today - datetime.timedelta(days=1)  # date from inovice unreliable - usually arrives in the evening
+                for row in data[12:]:  # Unknown number of rows. Iterate and match regex
+                    if re.match(r'P/[0-9]+', row[0]):
+                        # [['Supplier', 'Date', 'Invoice Number', 'PO Number', 'Item Number', 'Quantity']]
+                        self.GRN.append([company, date, invonum, row[0], row[2], row[4]])
+                try:
+                    os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_GRN.xlsx')
+                except:
+                    self.errors.append([company, 'Many', excelFile, "This file appears to be a duplicate GRN invoice."])
+            else:
+                self.errors.append(['Unknown', 'unknown', excelFile, "Unknown excel file."])
+
+    def scrapePDF(self):
+        """Opens PDF files in the download directory, determines their origin, and finds the important information.
+
+        Outputs between 1 and 3 files depending on whether there are self.errors and the type of error:
         1) an SO output file that contains the relevant information. Eventually should be added directly to EFACS
-        2) an error log showing the errors and the files they originated from 
-        3) a list of price dictionary entries that were not matched - this is only for key errors not for price 
+        2) an error log showing the self.errors and the files they originated from
+        3) a list of price dictionary entries that were not matched - this is only for key self.errors not for price
         discrepancies, which is a different error.
-        
-        The routine then returns a list of file paths for the log files and the pdfs with errors in them. BOTsend()
+
+        The routine then returns a list of file paths for the log files and the pdfs with self.errors in them. BOTsend()
         will take this list as an argument and attach the files to the report email.
-        
+
         Currently will only do entire directory, but could be changed if need be.
-        
+
         Be aware that a lot of this code is very similar, but the original data are different, so the error checking
         and other routines would be difficult to reuse.
         """
-    
-        # store a list of POs with bad entries and their errors.
-        errors = []
-
-        # generate dictionary of prices to check that POs are correct
-        pricedictionary = {}
-        # catch any unlisted company/part combinations in this list and print it at the end
-        # if they are correct, they can be added to the price dictionary.
-        # ensure that the prices are stored with 2 decimal places (even for e.g., $0.30 - the trailing zero is required)
-        nodictentry = []
-        with open(self.PRICEDICTIONARY) as dictfile:
-            dictentries = csv.reader(dictfile)
-            for line in dictentries:
-                # use tuple of company (i.e., VEST01, etc) and item
-                # companies have different prices
-                pricedictionary[(line[0], line[1])] = line[2]
-
-        # Similarly, create a dictionary of previous POs. Don't want duplicate entries
-        podictionary = {}
-        try:
-            with open(self.PODICTIONARY) as podictfile:
-                podictentries = csv.reader(podictfile)
-                for line in podictentries:
-                    # use tuple of company (i.e., VEST01, etc) and item
-                    # companies have different prices
-                    podictionary[line[0]] = line[1]
-        except:
-            pass  # should really only occur when dictionary file is empty
 
         # iterate over files in the folder
         for originalPDF in glob.glob(self.unprocessedpath + '*.pdf'):
@@ -279,18 +484,23 @@ class SOBOT:
 
             # create empty string for PDF contents
             PDFContents = ''
-            # Some POs have multiple items that need to be iteratively processed - store temporarily to ensure that there are no errors before writing to SO output
+            # Some POs have multiple items that need to be iteratively processed - store temporarily to ensure that there are no errors before writing to output
             tempitems = []
-    
             # open PDF
             pdfFileObj = open(originalPDF, 'rb')
-            pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
-            # combine all pages and concat into single string
-            for page in range(0, pdfReader.numPages):
-                pageObj = pdfReader.getPage(page)
-                pagetext = pageObj.extractText()
-                PDFContents = PDFContents + pagetext
-    
+
+
+            # Strict=False prevents some automatic error correction from executing (changing indices of xref table).
+            # If the correction fails, the program halts. This off by one error is not catastrophic, so it should be fine to pass.
+            try:  # There are other errors that could occur. Just going to catch them all and continue to next file.
+                pdfReader = PyPDF2.PdfFileReader(pdfFileObj, strict=False)
+                # Combine all pages and concat into single string
+                for page in range(pdfReader.numPages):
+                    PDFContents = PDFContents + pdfReader.getPage(page).extractText()
+            except:
+                self.errors.append(['unknown', 'File Issue', originalPDF, "Something went wrong attempting to read the PDF."])
+                continue
+
             # Close the file. Use string from scraped PDFreader - needs to be closed so we can move the file at the end
             pdfFileObj.close()
 
@@ -298,35 +508,46 @@ class SOBOT:
             # open text file and write the PDFContents
             if self.PDFtoText:
                 # create filename for scraped text
-                textfile = self.processedpath + originalPDF.split('\\')[-1].split('.')[0] + '_scraped.txt'
+                textfile = self.processedpath + originalPDF.split('/')[-1].split('.')[0] + '_scraped.txt'
                 with open(textfile, 'w') as pdfout:
                     pdfout.write(PDFContents)
-    
             # Can't effectively eliminate engineering drawing from file names
             # Check for them first because they likely have some of the same information.
             # Might produce false positives
-            if 'Draw. format' in PDFContents: # this is for Siemans - no idea if others will appaer
-                company = 'Siemans'
-                errors.append([company, 'unknown', originalPDF, "Appears to be an enginnering drawing. Please double check the document."])
-                # self.logs.append(originalPDF)
+            if 'Draw. format' in PDFContents: # this is for Siemens - no idea if others will appear
+                company = 'Siemens'
+                self.errors.append([company, 'Engineering drawing', originalPDF, "Appears to be an engineering drawing. Please double check the document."])
+            # Estes invoice
             elif 'estes-express' in PDFContents:
                 company = 'Estes'
-                errors.append([company, 'unknown', originalPDF, "Appears to be an invoice. Please double check the document."])
-                # self.logs.append(originalPDF)
+                self.errors.append([company, 'Invoice', originalPDF, "Appears to be an invoice. Please double check the document."])
+            # C&T invoice
+            elif re.search(r'SI-[0-9]{6}To', PDFContents):  # Should return true if matched
+                company = 'C&T'
+                self.errors.append([company, 'Invoice', originalPDF, "Appears to be an invoice. Please double check the document."])
+            # C&T order acknowledgement
+            elif re.search(r'Order Acknowledgement', PDFContents) and re.search(r'S-[0-9]{6}Invoice to', PDFContents):  # Probably don't need both
+                company = 'C&T'
+                self.errors.append([company, 'Order Acknowledgement', originalPDF, "Appears to be an invoice. Please double check the document."])
+            # Multiple delivery dates
+            elif re.search(r'Blankets', PDFContents):  # Hopefully, C&T doesn't start selling blankets.
+                company = 'NEEDS ATTENTION'
+                self.errors.append([company, 'NEEDS ATTENTION', originalPDF, "MULTIPLE DUE DATES ON PO."])
             # GE
             elif 'GE Renewables' in PDFContents:
                 company = 'GEC01'
-    
+                otherError = False
+
                 PONumber = re.search(r'Order Number[\s]+([0-9]+)', PDFContents)[1]
                 POTotal = re.search(r'Total Amt:([0-9.,]+)', PDFContents)[1]
-    
+
                 datequantity = re.findall(r'Delivery Schedule:([0-9]+)-([A-Z]{3})-([0-9]{2})([0-9,]+)[ ]+EACH', PDFContents)
                 partnumbers = re.findall(r'GE Item: ([A-Z0-9]+)[\s]+Rev: ([0-9]+)', PDFContents) #excluding revision for now
 
                 # here we are moving backwards from 'Hazard Code' because the text in front is unreliable (text behind may be too if they optionally include 'promis shipment date' or 'need by shipment date')
                 # we capture everything including the day of month in case they change from 2 digits to 1 digit
                 prices = re.findall(r'([0-9.]+)-[A-Z]{3}-[0-9 \n]+Hazard', PDFContents)
-    
+
                 sumofitems = 0
                 # using delivery dates as a proxy for number of items in order
                 for i,dq in enumerate(datequantity):
@@ -338,10 +559,14 @@ class SOBOT:
                     else:
                         # take all but the last two numbers
                         combinedprice = prices[i][0:-2]
-    
-                    date = self.checkDate((dq[0], dq[1], dq[2]))
+
+                    date = self.checkDate((dq[0], dq[1], dq[2]), company)
+                    date = (date[0], date[1], date[2])
+
+                    partnumber = partnumbers[i][0]
                     quantity = dq[3]
-    
+                    qtychk = self.checkQuantities(partnumber, quantity)
+
                     # The price per and item total don't separate in the GE files. Use the quantity sold to find correct values
                     for n, c in enumerate(combinedprice):
                         firsthalf = combinedprice[0:0 + n]
@@ -349,60 +574,61 @@ class SOBOT:
                             first = 0.0 #used below
                         else:
                             first = float(firsthalf)
-    
+
                         secondhalf = combinedprice[n:]
                         if first*float(quantity) == float(secondhalf):
                             priceper = first
                             itemtotal = secondhalf
                             break
-    
+
                     sumofitems += float(itemtotal)
-                    partnumber = partnumbers[i][0]
-                    date = (date[0], date[1], date[2])
-                    tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
-    
-                try:
-                    if float(pricedictionary[(company, partnumber)]) != float(priceper):
-                        errors.append([company, PONumber, originalPDF, "Incorrect item price.", "got: " + str(priceper), "expected: " + pricedictionary[(company, partnumber)]])
-                        # self.logs.append(originalPDF)
-                    elif float(sumofitems) != float(POTotal):
-                        errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
-                        # self.logs.append(originalPDF)
+
+                    pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+
+                    #Don't break the loop here. Want to keep checking for sum of items (i.e., total price).
+                    if pricechk:
+                        self.errors.append([company, PONumber, originalPDF, pricechk])
+                        otherError = True
+                    elif qtychk:
+                        self.errors.append([company, PONumber, originalPDF, qtychk])
+                        otherError = True
                     elif date[3] and self.datecheck:
-                        errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                        otherError = True
                     else:
-                        ####output####
-                        if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
-                            date = (date[0], date[1], date[2]) # Check date above outputs tuple with 4 entries - remake as 3
-                            self.POContents.extend(tempitems)
-                            processed = True
-                        else:
-                            errors.append([company, PONumber, originalPDF,
-                                           "File appears to be a duplicate of an already processed PO."])
-                except:
-                    nodictentry.append([company, partnumber, priceper])
-                    errors.append([company, PONumber, originalPDF, "No price dictionary entry - see 'NoDictionaryEntry' file."])
-                    # self.logs.append(originalPDF)
-    
-            # Vestas America (Vest01) - Handles some sjol01 - sjol01 also handled below (after all Vestas)
-            elif 'Vestas Nacelles America' in PDFContents:
+                        date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
+                        tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
+                if float(sumofitems) != float(POTotal):
+                    self.errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
+                elif self.checkPOdictionary(PONumber, company) and not otherError:
+                    ####output####
+                    self.POContents.extend(tempitems)
+                    processed = True
+                elif not otherError:
+                    self.errors.append([company, PONumber, originalPDF,
+                                   "File appears to be a duplicate of an already processed PO."])
+                #elif otherError - already appended the error in loop
+
+            # Vest01 and Vest05 - Handles some sjol01
+            elif 'Vestas Nacelles America' in PDFContents or 'Vestas Blades America Inc' in PDFContents:
                 # currently only handles 1 item per PO. Should be easy to fix if it comes up. Need to see an example first.
                 if 'SJOELUND US INC.' in PDFContents:
-                    # do something here about the different ways to handle different companies
-                    # may need to move this to the end when data are written
-                    # I think the only difference is inputting price in the SO, which will be handled during input.
                     company = 'sjol01'
+                elif 'Vestas Blades America Inc.' in PDFContents:
+                    company = 'VEST05'
                 else:
                     company = 'VEST01'
-    
+
                 # Get PO Number
                 PO = re.search(r'P(K|1)[0-9]{5}', PDFContents)  # Revision number and page number run right into this so it needs to be tight (i.e., 5 numbers)
                 PONumber = PO[0]
                 # 1200, 1240 appear to be formatting information
                 # if there is more than one item, this is going to need to change
                 item = re.search(r'    1200([0-9]{6,})', PDFContents)
+
                 partnumber = item[1]
-    
+
                 # dates separated by '.'
                 datepattern = """
                 1240            #string that appears to be pdf formatting information and consistently leads this line
@@ -413,58 +639,54 @@ class SOBOT:
                 ([0-9]+)        #Year
                 """
                 dategroup = re.search(datepattern, PDFContents, re.VERBOSE)
-                # dategroup = re.search(r'1240([0-9 ]{2})\.([0-9]+)\.([0-9]+)', PDFContents)
-    
-                date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]))
-    
+
+                if PONumber[1] == 'K':
+                    date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]), company + 'K')
+                else:
+                    date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]), company)
+
                 pqpattern = """
                 ([0-9,]+)       #quantities allowing for thousands (,)
                 EA[ ]+          #EA is the units and the number of spaces varies by the length of the quantity
-                ([0-9,]+)       #price per item - european notation with not thousands separator
+                ([0-9,]+)       #price per item - european notation with no thousands separator
                 [ ]+            #variable number of spaces after unit price
                 ([0-9,]+)       #order total (quanity * unit price)
                 """
                 pricesandquantity = re.search(pqpattern, PDFContents, re.VERBOSE)
-                # pricesandquantity = re.search(r'([0-9,]+)EA[ ]+([0-9,]+)[ ]+([0-9,]+)', PDFContents)
-    
+
                 quantity = float(pricesandquantity[1].replace(',', '.'))
                 priceper = float(pricesandquantity[2].replace(',','.'))
                 POTotal = float(pricesandquantity[3].replace(',','.'))
-    
-                try:
-                    if float(pricedictionary[(company, partnumber)]) != round(float(priceper),2):
-                        errors.append([company, PONumber, originalPDF, "Incorrect item price.", "Got: " + str(priceper), "Expected: " + pricedictionary[(company, partnumber)]])
-                        # self.logs.append(originalPDF)
-                    elif quantity * priceper < POTotal - 1 or quantity * priceper > POTotal + 1:
-                        errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                        # self.logs.append(originalPDF)
-                    elif date[3] and self.datecheck:
-                        errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                    else:
-                        ####output####
-                        if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
-                            date = (date[0], date[1], date[2]) #Check date above outputs tuple with 4 entries - remake as 3
-                            self.POContents.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
-                            processed=True
-                        else:
-                            errors.append([company, PONumber, originalPDF,
-                                           "File appears to be a duplicate of an already processed PO."])
-                except:
-                    nodictentry.append([company, partnumber, priceper])
-                    errors.append([company, PONumber, originalPDF, "No price dictionary entry - see 'NoDictionaryEntry' file."])
-                    # self.logs.append(originalPDF)
-    
-            # Vest02 and Vest04 use very similar formats
+
+                pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                qtychk = self.checkQuantities(partnumber,quantity)
+
+                if pricechk:
+                    self.errors.append([company, PONumber, originalPDF, pricechk])
+                elif qtychk:
+                    self.errors.append([company, PONumber, originalPDF, qtychk])
+                elif quantity * priceper < POTotal - 1 or quantity * priceper > POTotal + 1:  # Added error margin for floating point math.
+                    self.errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                elif date[3] and self.datecheck:
+                    self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                elif self.checkPOdictionary(PONumber, company):
+                    #####output#####
+                    date = (date[0], date[1], date[2]) # Check date above outputs tuple with 4 entries - remake as 3
+                    self.POContents.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+                    processed = True
+                else:
+                    self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
+
+            # Vest02
             elif 'Vestas - American Wind Technology' in PDFContents:
                 company = 'VEST02'
 
                 otherError = False
 
-
                 # Get PO Number
                 PO = re.search(r'Purchase order ([0-9]+)', PDFContents)
                 PONumber = PO[1]
-    
+
                 # multiple items per order
                 # counts occurrences of 'Delivery date' as it appears once per item at the end of the item
                 alldates = re.findall(r'Delivery date: ([0-9]{1,2}) ([A-z]{3}) ([0-9]{4})', PDFContents)
@@ -474,80 +696,75 @@ class SOBOT:
                 [0-9]{1}0       #line items begin with 10, 20, 30, etc.
                 ([0-9]+)        #part number - capture group [0]
                 [ ]+            #variable spaces
-                ([0-9]+)        #quantitiy - capture group [1]
+                ([0-9,.]+)      #quantitiy - capture group [1]
                 [ ]EA[ ]+       #single space + EA + variable white space
                 ([0-9.,]+)      #unit price - capture group [2]
                 [ ]+            #variable spaces
                 ([0-9.,]+)      #item total - capture group [3]
                 """
                 itemline = re.findall(itemlinepatt, PDFContents, re.VERBOSE)
-                # itemline = re.findall(r'[0-9]{1}0([0-9]+)[ ]+([0-9]+) EA[ ]+([0-9.,]+)[ ]+([0-9.,]+)', PDFContents)
 
                 POTotal = re.findall(r'Net value[ ]+([0-9.,]+)', PDFContents)[0].replace(',', '')
-    
+
                 #Need to iterate over these item lists and assign values. Not sure how many are in each.
                 #One delivery date per item is used as a proxy for total number of items
-                #If items span pages (haven't seen it happen yet), this procedure will need to be adapted (maybe just concat all pages at beginning?)
                 #First, we keep track of our total value by adding the line items and check it against the reported PO value at the end
                 sumofitems = 0
-    
+
                 for i, date in enumerate(alldates):
-                    # regex only checks line items 10-90. Probably won't be 10 items but throw error just in case
+                    # regex only checks line items 10-90. Probably won't ever be 10 items but throw error just in case
                     if i > 9:
                         otherError=True
-                        errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
+                        self.errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
                         break
 
-                    date = self.checkDate(date)
+                    date = self.checkDate(date, company)
 
                     partnumber = itemline[i][0]
                     quantity = itemline[i][1].replace(',', '')
                     priceper = itemline[i][2].replace(',', '')
                     itemtotal = itemline[i][3].replace(',', '')
 
-                    try:
-                        if float(pricedictionary[(company, partnumber)]) != float(priceper):
-                            errors.append([company, PONumber, originalPDF, "Incorrect item price.", "Got: " + str(priceper), "Expected: " + pricedictionary[(company, partnumber)]])
-                            otherError = True
-                            break
-                        elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1: #Set this as +/- 1 to deal with floating point precision errors
-                            errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                            otherError = True
-                            break
-                        elif date[3] and self.datecheck:
-                            errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                            break
-                        else:
-                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
-                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
-                    except:
-                        nodictentry.append([company, partnumber, priceper])
-                        errors.append([company, PONumber, originalPDF, "No price dictionary entry - see 'NoDictionaryEntry' file."])
+                    pricechk = self.checkPriceDictionary(company, partnumber,priceper)
+                    qtychk = self.checkQuantities(partnumber, quantity)
+
+                    if pricechk:
+                        self.errors.append([company, PONumber, originalPDF, pricechk])
                         otherError = True
-                        break
-    
-                    sumofitems += float(itemtotal)
-    
-                # Check comes at end of PO. Above errors occur on line items, this check is for total PO price.
-                if float(sumofitems) != float(POTotal):
-                    errors.append([company, PONumber, originalPDF, "Total price not sum of individual items. This error may appear due to a different error in the price checking.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
-                elif not otherError: # actual error stored above
-                    #####output#####
-                    if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
-                        self.POContents.extend(tempitems)
-                        processed = True
+                    elif qtychk:
+                        self.errors.append([company, PONumber, originalPDF, qtychk])
+                        otherError = True
+                    elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1: #Set this as +/- 1 to deal with floating point precision self.errors
+                        self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                        otherError = True
+                    elif date[3] and self.datecheck:
+                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                        otherError = True
                     else:
-                        errors.append([company, PONumber, originalPDF, "File appears to be a duplicate of an already processed PO."])
-    
+                        date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3 (ie, remove error message)
+                        tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
+                    sumofitems += float(itemtotal)
+
+                # Check comes at end of PO. Above self.errors occur on line items, this check is for total PO price.
+                if float(sumofitems) != float(POTotal):
+                    self.errors.append([company, PONumber, originalPDF, "Total price not sum of individual items. This error may appear due to a different error in the price checking.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
+                elif self.checkPOdictionary(PONumber, company) and not otherError:
+                    #####output#####
+                    self.POContents.extend(tempitems)
+                    processed = True
+                elif not otherError:
+                    self.errors.append([company, PONumber, originalPDF, "File appears to be a duplicate of an already processed PO."])
+
             # Vest04 - very similar to vest02 but there are some spacing issues that are different
             elif 'Vestas Do Brasil Energia' in PDFContents:
                 company = 'vest04'
                 otherError: False
-    
+
                 # Get PO Number
                 PO = re.search(r'Purchase order ([0-9]+)', PDFContents)
                 PONumber = PO[1]
-    
+
                 #multiple items per order
                 alldates = re.findall(r'Delivery date: ([0-9]{1,2}) ([A-z]{3}) ([0-9]{4})', PDFContents)
 
@@ -559,73 +776,75 @@ class SOBOT:
                 ([0-9.,]+)          #unit price and total price - capture group [1]
                 """
                 alldata = re.findall(alldatapatt, PDFContents, re.VERBOSE)
-                # alldata = re.findall(r'[^ ][1-9]0([0-9,]+) EA([0-9.,]+)', PDFContents)
-    
+
                 POTotal = re.search(r'Net value[ ]+([0-9.,]+)', PDFContents)[1].replace(',', '')
-    
+
                 sumofitems = 0
                 for i, date in enumerate(alldates):
                     # regex only checks line items 10-90. Probably won't be 10 items but throw error just in case
                     if i > 9:
                         otherError=True
-                        errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
-                        # self.logs.append(originalPDF)
+                        self.errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
                         break
 
-                    date = self.checkDate(date)
+                    date = self.checkDate(date, company)
 
                     # Separate the combined terms
                     priceper = re.match(r'[0-9]+.[0-9]{2}', alldata[i][1])[0]
                     itemtotal = float(alldata[i][1].replace(priceper, '').replace(',', ''))
+
                     # not a great way to separate the quantity from the part number
                     # comes as '290107241,000' with quantity as 1,000 or '153452600' with quantity as 600
                     # need to calculate from the item total and the priceper (both of which we have at high confidence)
                     # Should double check with price dictionary
-                    # this is dangerous though because of rounding errors.
+                    # this is dangerous though because of rounding self.errors.
                     quantity = float(itemtotal) / float(priceper.replace(',', ''))
+
                     # insert commas so that we match the quantity and not another part of the item string
                     commaquantity = format(int(quantity), ',d')
+
                     partnumber = alldata[i][0].replace(commaquantity, '')
-    
+
+                    if re.search(r'per[ ]+10', PDFContents) and len(partnumber) > 7:  # For some reason they occasionally price things in batches but still list quantity as total
+                        quantity = quantity * 10
+                        priceper = float(priceper) / 10
+                        commaquantity = format(int(quantity), ',d')
+                        partnumber = alldata[i][0].replace(commaquantity, '')
+
+                    pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                    qtychk = self.checkQuantities(partnumber, quantity)
+
+                    if pricechk:
+                        self.errors.append([company, PONumber, originalPDF, pricechk])
+                        otherError = True
+                    elif qtychk:
+                        self.errors.append([company, PONumber, originalPDF, qtychk])
+                        otherError = True
+                    elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision self.errors
+                        self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.",'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                        otherError = True
+                    elif date[3] and self.datecheck:
+                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                        otherError = True
+                    else:
+                        date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
+                        tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
                     # check if individual line items sum correctly
                     sumofitems += float(itemtotal)
 
-                    try:
-                        if float(pricedictionary[(company, partnumber)]) != float(priceper):
-                            errors.append([company, PONumber, originalPDF, "Incorrect item price.", "Got: " + str(priceper), "Expected: " + pricedictionary[(company, partnumber)]])
-                            # self.logs.append(originalPDF)
-                            otherError = True
-                            break
-                        elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision errors
-                            errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.",'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                            # self.logs.append(originalPDF)
-                            otherError = True
-                            break
-                        elif date[3] and self.datecheck:
-                            errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                            break
-                        else:
-                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
-                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
-                    except:
-                        nodictentry.append([company, partnumber, priceper])
-                        errors.append([company, PONumber, originalPDF, "No price dictionary entry - see 'NoDictionaryEntry' file."])
-                        otherError = True
-                        break
-    
-                # This check only comes at end of PO (end of for loop). The above errors can occur on individual line items, so we need to wait for this check.
+
+                # This check only comes at end of PO (end of for loop). The above self.errors can occur on individual line items, so we need to wait for this check.
                 if float(sumofitems) != float(POTotal):
-                    errors.append([company, PONumber, originalPDF, "Total price not sum of individual items.",
+                    self.errors.append([company, PONumber, originalPDF, "Total price not sum of individual items.",
                                    'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
-                elif not otherError:  # actual error stored above
+                elif self.checkPOdictionary(PONumber, company) and not otherError:
                     #####output#####
-                    if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
-                        self.POContents.extend(tempitems)
-                        processed = True
-                    else:
-                        errors.append([company, PONumber, originalPDF,
-                                       "File appears to be a duplicate of an already processed PO."])
-    
+                    self.POContents.extend(tempitems)
+                    processed = True
+                elif not otherError:
+                    self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
+
             # sjol01 - direct sales - some other Sjoeland POs use Vestas POs and are handled above
             # elif 'SJØLUND' in PDFContents:
             #     company = 'sjol01'
@@ -664,18 +883,18 @@ class SOBOT:
             #         itemtotal = item[3].replace('.', '').replace(',','.')
             #
             #     PONumber = '/'.join(POnumlist) #join PO numbers to create customer reference
-    
+
             # FRON01
             elif 'Frontier Technologies Brewton' in PDFContents:
                     company = 'FRON01'
                     otherError = False
-    
+
                     # PO and date are combined
                     PONumber = re.search(r'America([0-9]+)[0-9]{2}-', PDFContents)[1]
                     POTotal = re.search(r'Total:\$([0-9.,]+)', PDFContents)[1].replace(',','')
                     # need to sum individual items
                     sumofitems = 0
-    
+
                     #Regex = ea + $(priceper) + $(total) + Due: (date) + (partnumber) ea$5.12 $3,584.00 Due:04-Aug-17105W1931P016700H - quantity comes between last letter (=revision) and P### (part of PO)
                     itemlinepatt = """
                     ea\$                                    #end of units + literal $
@@ -690,80 +909,152 @@ class SOBOT:
                     ([A-Z])Rev                              #revision
                     """
                     itemline = re.findall(itemlinepatt, PDFContents, re.VERBOSE)
-                    # itemline = re.findall(r'ea\$([0-9,.]+) \$([0-9,.]+) Due:([A-Z0-9]+)(P[0-9]{3})([0-9,]+)([A-Z])Rev', PDFContents)
-    
+
                     for item in itemline:
                         priceper = item[0]
-    
+
                         itemtotal = item[1].replace(',', '')
-                        date = self.checkDate((item[2], item[3], item[4]))
+                        date = self.checkDate((item[2], item[3], item[4]), company)
                         partnumber = item[5] + item[6]
                         quantity = item[7].replace(',', '')
                         rev = item[8] # Does revision need to be included in part number?
-    
+
+                        pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                        qtychk = self.checkQuantities(partnumber, quantity)
+
+                        if pricechk:
+                            self.errors.append([company, PONumber, originalPDF, pricechk])
+                            otherError = True
+                        elif qtychk:
+                            self.errors.append([company, PONumber, originalPDF, qtychk])
+                            otherError = True
+                        elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision self.errors
+                            self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                            otherError = True
+                        elif date[3] and self.datecheck:
+                            self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                            otherError = True
+                        else:
+                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3 (ie, remove error message)
+                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
                         # check if individual line items sum correctly
                         sumofitems += float(itemtotal)
-    
-                        try:
-                            if float(pricedictionary[(company, partnumber)]) != float(priceper):
-                                errors.append([company, PONumber, originalPDF, "Incorrect item price.", "Got: " + str(priceper), "Expected: " + pricedictionary[(company, partnumber)]])
-                                otherError = True
-                                break
-                            elif int(quantity) * float(priceper) != float(itemtotal):
-                                errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                                otherError = True
-                                break
-                            elif date[3] and self.datecheck:
-                                errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                                break
-                            else:
-                                date = (date[0], date[1],
-                                        date[2])  # Check date above outputs tuple with 4 entries - remake as 3
-                                tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
-                        except:
-                            nodictentry.append([company, partnumber, priceper])
-                            errors.append([company, PONumber, originalPDF, "No price dictionary entry - see 'NoDictionaryEntry' file."])
-                            otherError = True
-                            break
-    
-                    # This check only comes at end of PO (end of for loop). The above errors can occur on individual line items, so we need to wait for this check.
-                    if float(sumofitems) != float(POTotal):
-                        errors.append([company, PONumber, originalPDF, "Total price not sum of individual items.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
-                    elif not otherError:
-                        ####output####
-                        if self.checkPOdictionary(PONumber, company, podictionary, POdictionarycheck=self.POdictionarycheck):
-                            self.POContents.extend(tempitems)
-                            processed=True
-                        else:
-                            errors.append([company, PONumber, originalPDF,
-                                           "File appears to be a duplicate of an already processed PO."])
 
+                    # This check only comes at end of PO (end of for loop). The above self.errors can occur on individual line items, so we need to wait for this check.
+                    if float(sumofitems) != float(POTotal):
+                        self.errors.append([company, PONumber, originalPDF,"Total price not sum of individual items. This error may appear due to a different error in the price checking.",'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
+                    elif self.checkPOdictionary(PONumber, company) and not otherError:
+                        #####output#####
+                        self.POContents.extend(tempitems)
+                        processed = True
+                    elif not otherError:
+                        self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
+
+            # Scanned document
+            elif not PDFContents:
+                company = 'unknown'
+                self.errors.append([company, 'Scanned/empty document', originalPDF, "PDF appears to be a scanned file"])
             # Unidentified PO
             else:
                 company = 'unknown'
-                errors.append([company, 'unknown', originalPDF, "PO not recognized"])
-                #self.logs.append(originalPDF)
-    
+                self.errors.append([company, 'unknown', originalPDF, "PO not recognized"])
             # check if a folder has been made for a day - if not, create it
             if self.movepdf and processed:
                 try:
                     os.rename(originalPDF, self.processedpath + self.datestring + '_' + company + '_' + str(PONumber) + '.pdf')
                 except:
-                    # In general, this message should not appear. Duplicates should be blocked by the PONumber dictionary.
-                    errors.append([company, PONumber, originalPDF, "This file is a duplicate of an already processed file. It was not moved. There should be another associated error in the error log."])
+                    # In general, this message should not appear. Duplicates should be blocked by PONumber dictionary
+                    # Put here to avoid crashes during debugging (don't check PO dictionary flag)
+                    self.errors.append([company, PONumber, originalPDF, "This file is a duplicate of an already processed file. It was not moved. There should be another associated error in the error log."])
             elif not processed:
                 self.logs.append(originalPDF)
 
+        numerrors = len(self.errors)
+        if not numerrors:
+            if self.printstatus:
+                print('SOs successfully extracted!')
+        else:
+            if self.printstatus:
+                print('There were %s errors. Check the error log.' % numerrors)
 
-        if len(nodictentry) > 0:
-            # set output file name
-            # including hours and minutes so that this program can be run twice in one day
-            baddictfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_NoDictionaryEntry.csv')
-            self.logs.append(baddictfilename)
-            with open(baddictfilename, 'w', newline='') as out:
-                itemwr = csv.writer(out, delimiter=",")
-                for item in nodictentry:
-                    itemwr.writerow(item)
+    def replaceWithSQLQuery(self):
+        """
+        Uses an EFACS xls report to collect current stock levels and open orders from the database
+        At the very least, this should be repalced with a scrape of the enquiry webpage so user doesn't ahve to intervene
+        """
+
+        wb = xlrd.open_workbook('./test.xls')
+        data = []
+
+        # Collect items from workbook into empty list
+        for s in wb.sheets():
+            for row in range(s.nrows):
+                values = []
+                for col in range(s.ncols):
+                    values.append(str(s.cell(row, col).value))
+
+    def projectStock(self):
+        """
+        Make stock projections into the future based on open orders, forecasting and current stock.
+        """
+
+        # Need to read open orders from disk because open orders only arrive once a week and are asynchronus.
+        # Reading from disk ensures that we have the latest open orders from customers\
+        # Can skip reading if lists are still in memory because that indicates that they arrived today
+        if not self.HYopenorders:
+            hyoofilename = self.stockprojectionpath + '\OpenOrders\HYOpenOrders.csv'
+            with open(hyoofilename) as oos:
+                hyooitems = csv.reader(oos)
+                for line in hyooitems:
+                    self.HYopenorders.append(line)
+
+        if not self.VESTSJOopenorders:
+            vestfilename = self.stockprojectionpath + '\OpenOrders\VESTSJOOpenOrders.csv'
+            with open(vestfilename) as oos:
+                VSooitems = csv.reader(oos)
+                for line in VSooitems:
+                    self.VESTSJOopenorders.append(line)
+
+        if not self.GEopenorders:
+            GEfilename = self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv'
+            with open(GEfilename) as oos:
+                GEooitems = csv.reader(oos)
+                for line in GEooitems:
+                    self.GEopenorders.append(line)
+
+        if datetime.date.today().weekday() == 0:  # 0 = Monday 6 = Sunday --  d should be datetime object in future. (d.weekday())
+            pass
+            # Remove projected stock based on forecasts
+
+        ######
+        #
+        #
+        #  Update after I figure out best way to get data into program
+        #
+        #
+        ######
+
+        searchpart = ''  # Initialize this as empty so that the rest of the code works even with no search part
+        if self.mfparts:  # Make sure we have parts to search for
+            mfpartcalcs = {}
+            if row[0] == 'Part :':
+                searchpart = ''  # Reset search part on new item (mf item that we are counting stock for)
+                for mfpart in self.mfparts:
+                    if row[1] in mfpart:
+                        searchpart = row[1]
+                        mfpartcalcs[searchpart] = 0  # Create quantity for the part
+
+        if searchpart:  # if current looping item is a part we want to keep track of
+            mfpartcalcs[searchpart] = mfpartcalcs[searchpart] + float(row[4])  # Next to itemstock in while loop
+
+    def writeFiles(self):
+
+        print(self.GRN)
+
+        # Need to create directory
+        if not os.path.exists(self.stockprojectionpath):
+            os.makedirs(self.stockprojectionpath)
 
         # set output file name
         # including hours and minutes so that this program can be run twice in one day
@@ -774,31 +1065,181 @@ class SOBOT:
             for item in self.POContents:
                 itemwriter.writerow(item)
 
-        numerrors = len(errors)
-        if not numerrors:
-            if self.printstatus:
-                print('SOs successfully extracted!')
-        else:
-            if self.printstatus:
-                print('There were %s errors. Check the error log.' % numerrors)
-            errorfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_ErrorLog.csv')
-            self.logs.append(errorfilename)
-            with open(errorfilename, 'w', newline='') as errfile:
-                errwriter = csv.writer(errfile, delimiter=",")
-                for item in errors:
-                    errwriter.writerow(item)
+        errorfilename = datetime.datetime.now().strftime(self.datepath + '%y-%m-%d_%H%M_ErrorLog.csv')
+        self.logs.append(errorfilename)
+        with open(errorfilename, 'w', newline='') as errfile:
+            errwriter = csv.writer(errfile, delimiter=",")
+            for item in self.errors:
+                errwriter.writerow(item)
 
-        self.logs = self.logs
+        if len(self.nopricedictentry) > 0:
+            # set output file name
+            # including hours and minutes so that this program can be run twice in one day
+            baddictfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_NoPriceDictionaryEntry.csv')
+            self.logs.append(baddictfilename)
+            with open(baddictfilename, 'w', newline='') as out:
+                itemwr = csv.writer(out, delimiter=",")
+                for item in self.nopricedictentry:
+                    itemwr.writerow(item)
 
-        #save the dictionary
-        with open(self.PODICTIONARY, 'w') as foundPOs:
-            for key, value in podictionary.items():
-                foundPOs.write('%s,%s\n' % (key, value))
+        # save the PO dictionary
+        with open(self.PODICTIONARY, 'w', newline='') as foundPOs:
+            itemwr = csv.writer(foundPOs, delimiter=",")
+            for item in self.polist:
+                itemwr.writerow(item)
+
+        # Writing open orders to disk and overwriting previous files. Only write if some were found
+        # This way we always have the most recent report even though they are
+        # received on different days
+
+        # Save HY open orders
+        if self.HYopenorders:
+            HYopenorderfilename = self.stockprojectionpath + '\OpenOrders\HYOpenOrders.csv'
+            with open(HYopenorderfilename, 'w', newline='') as openorders:
+                oowriter = csv.writer(openorders, delimiter=",")
+                for row in self.HYopenorders:
+                    oowriter.writerow(row)
+
+        # Save VEST and SJO open orders (arrive in the same email)
+        if self.VESTSJOopenorders:
+            VESTSJOopenorderfilename = self.stockprojectionpath + '\OpenOrders\VESTSJOOpenOrders.csv'
+            with open(VESTSJOopenorderfilename, 'w', newline='') as openorders:
+                oowriter = csv.writer(openorders, delimiter=",")
+                for row in self.VESTSJOopenorders:
+                    oowriter.writerow(row)
+
+        # Save GE open orders
+        if self.GEopenorders:
+            GEopenorderfilename = self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv'
+            with open(GEopenorderfilename, 'w', newline='') as openorders:
+                oowriter = csv.writer(openorders, delimiter=",")
+                for row in self.GEopenorders:
+                    oowriter.writerow(row)
+
+    def writeExcel(self):
+        # Converting to XLS with each part as it's own sheet.
+        # Simplifies graphing procedure
+        # Could consider using matplotlib or something similar
+
+        n = 0  # Sheet number
+
+        openorderdata = []
+        openorderdata.extend(self.HYopenorders, self.VESTSJOopenorders, self.GEopenorders)
+
+        for row in fulldate:
+            if row[0] == 'Part :':
+                pastdueneeded = True  # Make sure we only check for these once or else they will be added every loop.
+                # New part - add a sheet for it (can't have / in sheet names)
+                # Need to overwrite sheets so that the open items can be added tot he third column
+                self.book.add_sheet(str(row[1].replace('/', '-')), cell_overwrite_ok=True)
+                sheet = self.book.get_sheet(n)
+                n += 1
+                rowiterator = 0  # Needed to write rows with correct index (can't use enumerate because count restarts on new sheet)
+                openquanties = []
+
+                for openitem in openorderdata:  # Check if part number has open items and append to list (added to outfile below)
+                    if row[1].lower().replace('vestas', '') in openitem or row[1].lower().replace('sjo-','') in openitem:
+                        openquanties.append(openitem)
+
+            else:
+                for i, openitem in enumerate(openquanties):
+                    if openitem[3] < self.today and pastdueneeded:  # Make sure we add past due items
+                        sheet.write(rowiterator, 1, str(openitem[3]))
+                        sheet.write(rowiterator, 2, 0)  # Sticking zeros here because excel doesn't graph correctly if the top row has empty cells
+                        sheet.write(rowiterator, 3, 0)
+                        sheet.write(rowiterator, 4, float(openitem[2]) * -1)
+                        sheet.write(rowiterator, 5, str(openitem[0]))
+                        rowiterator += 1
+                    if openitem[3] == row[3] and openquanties[i - 1][3] == row[3]:
+                        sheet.write(rowiterator, 4, float(openitem[2]) * -1)
+                        sheet.write(rowiterator, 5, str(openitem[0] + ' & ' + openquanties[i - 1][0]))
+                    elif openitem[3] == row[3]:
+                        sheet.write(rowiterator, 4, float(openitem[2]) * -1)
+                        sheet.write(rowiterator, 5, str(openitem[0]))
+
+                pastdueneeded = False
+
+                sheet.write(rowiterator, 0,
+                            str(row[0]))  # Apparently need to write cells 1 at at time (row, column, value)
+                sheet.write(rowiterator, 1, str(row[3]))
+                sheet.write(rowiterator, 2,
+                            float(row[4]))  # Had this in a loop but easier to convert type here than in excel
+                sheet.write(rowiterator, 3, float(row[5]))
+                rowiterator += 1
+
+        self.book.save(self.stockprojectionpath + 'StockProjections.xls')
+
+    def calculateManufacturedParts(self):
+        if self.printstatus:
+            print('Calculating manufactured parts...')
+
+        # No get_sheet_by_name() in xlwt.workbook
+        # Just reopening saved book
+        # Could write a method to work on the alraedy open workbook and skip this step
+        # N.B.: This was a xlwt object but is now a xlrd object
+        excelFile = self.stockprojectionpath + 'StockProjections.xls'
+        self.book = xlrd.open_workbook(excelFile)
+
+        # Get the parent and child parts
+        mfcalcs = []
+        for mfpart in self.mfparts:
+            partcalcs = []
+            mfqtys = []
+            # Get parent stock requests (should all be negative)
+            try:  # Not entirely sure how consistent this capitalization is. Hopefully they don't use Title case.
+                if self.printstatus:
+                    print(mfpart[0].upper())
+                s = self.book.sheet_by_name(mfpart[0].upper()) # These should be unique
+            except:
+                s = self.book.sheet_by_name(mfpart[0].lower())
+            # Put date and required inventory in list
+            for row in range(s.nrows):
+                # Need to pass over variable number of unfullfilled POs and SOs
+                # Skipping them will make sure dates line up below
+                date = str(s.cell(row, 1).value).split('-')
+                if "Opening" in str(s.cell(row, 0).value) or datetime.date(int(date[0]),int(date[1]),int(date[2])) < datetime.date(2017, 6, 21):  # change to self.today - testing on old data
+                    continue
+                partcalcs.append([str(s.cell(row, 1).value), str(s.cell(row, 3).value)])  # date, mfpart stock
+
+            # Append all of the required child parts
+            for i in range(len(mfpart)//2):  # Get the other parts and their stock levels - should be @ index 1,3,5, etc.
+                try:
+                    s = self.book.sheet_by_name(mfpart[i*2+1].upper())
+                except:
+                    s = self.book.sheet_by_name(mfpart[i * 2 + 1].lower())
+                mfqtys.append(mfpart[i * 2 + 2])
+                skipped = 0
+                for row in range(s.nrows):
+                    date = str(s.cell(row, 1).value).split('-')
+                    if "Opening" in str(s.cell(row, 0).value) or datetime.date(int(date[0]),int(date[1]),int(date[2])) < datetime.date(2017, 6, 21):
+                        skipped += 1
+                        continue
+                    row -= skipped
+                    partcalcs[row].extend([str(s.cell(row, 3).value)])  # extend each row by child part stock
+
+            # Add the smallest number of each manufactured part you can
+            for row in partcalcs:
+                # mfqtys should have 1 entry per item and row[2:] should be the same length
+                limitingpart = min([float(a) * float(b) for a, b in zip(mfqtys, row[2:])])
+                row.extend([limitingpart, float(row[1])+limitingpart])  # row[1] should be negative (requested stock) and limiting part should be positive
+
+            mfcalcs.append(partcalcs)
+
+
+        print(mfcalcs)
+        print('Write this output to excel')
+
+    def forecastParts(self):
+        
+
 
 if __name__ == "__main__":
     bot = SOBOT()
-    bot.debug(originfolder='./', destfolder='./', PDFtoText=True)  # leaveunread=True POdictionarycheck=False
-    #bot.BOTfetch()
-    bot.BOTscrape()
-    #bot.BOTsend()
+    bot.debug()  # leaveunread=True POdictionarycheck=False originfolder='./', destfolder='./', PDFtoText=True
+    bot.fetchMail()
+    bot.scrapePDF()
+    bot.parseExcel()
+    bot.writeFiles()
+    bot.calculateManufacturedParts()
+    #bot.sendMail()
 

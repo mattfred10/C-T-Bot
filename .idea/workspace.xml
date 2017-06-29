@@ -2,51 +2,108 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="de57c925-2266-42de-949c-83bd78e1447e" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/17-06-08_1133_ErrorLog.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/17-06-08_1133_SalesOrders.csv" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_FRON01_40158.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_GEC01_620096367.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_P115357.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_P115358.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK23465.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25049.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25095.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25141.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25154.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25253.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25380.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25389.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25442.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25444.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25565.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25590.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25593.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25598.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25646.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25647.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK25694.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26018.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26040.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26187.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26279.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26320.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK26644.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK27043.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503800596.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503809544.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503827000.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST02_4503870730.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25083.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25219.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25445.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK25501.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_sjol01_PK26909.pdf" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_vest04_4503814264.pdf" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK27057.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/ProcessedSOs/2017-06-08_VEST01_PK27085.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/UnprocessedSOs/D1458556_idw.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/UnprocessedSOs/Doc1-6.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/UnprocessedSOs/Doc1-7.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/2017/06/08/UnprocessedSOs/Requisition177686.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/Interferring files/Payment Advice Note from 03072017 0000562921.PDF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/PDFScraper (2).py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/PDFScraper.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/PDFScraper3.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/PriceDictionary/PriceDictionary.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/SOBotSettings - Copy/PODictionary.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/SOBotSettings - Copy/PriceDictionary.csv" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/SOBotSettings - Copy/SOBotSettings.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/ServerClient/SOChecker_client.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/ServerClient/SO_server.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/ServerClient/email_server.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_FRON01_40158.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_GEC01_620096367.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_P115357.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_P115358.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK23465.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25049.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25095.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25141.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25154.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25253.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25380.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25389.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25442.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25444.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25565.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25590.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25593.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25598.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25646.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25647.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK25694.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK26008.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK26018.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST01_PK26040.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST02_4503800596.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST02_4503809544.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_VEST02_4503827000.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_sjol01_PK25083.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_sjol01_PK25219.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_sjol01_PK25445.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_sjol01_PK25501.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_sjol01_PK25916.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_sjol01_PK26002.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/pdf/2017-05-23_vest04_4503814264.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/Old/test.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_FRON01_40158.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_GEC01_620096367.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_P115357.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_P115358.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK23465.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25049.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25095.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25141.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25154.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25253.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25380.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25389.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25442.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25444.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25565.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25590.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25593.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25598.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25646.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25647.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK25694.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK26008.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK26018.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST01_PK26040.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST02_4503800596.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST02_4503809544.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_VEST02_4503827000.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_sjol01_PK25083.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_sjol01_PK25219.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_sjol01_PK25445.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_sjol01_PK25501.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_sjol01_PK25916.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_sjol01_PK26002.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/2017-06-06_vest04_4503814264.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/D1458556_idw.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Doc1-1.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Doc1-2.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Doc1-3.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Doc1-4.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Doc1-5.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Doc1.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Requisition177686.pdf" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/pdf/Vestas PO 4503870730.pdf" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dictionaries/accounts1.xml" afterPath="$PROJECT_DIR$/.idea/dictionaries/accounts1.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBot.py" afterPath="$PROJECT_DIR$/SOBot.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBotSettings/PODictionary.csv" afterPath="$PROJECT_DIR$/SOBotSettings/PODictionary.csv" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBotSettings/PriceDictionary.csv" afterPath="$PROJECT_DIR$/SOBotSettings/PriceDictionary.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SOBotSettings/SOBotSettings.txt" afterPath="$PROJECT_DIR$/SOBotSettings/SOBotSettings.txt" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/email_services.py" afterPath="$PROJECT_DIR$/email_services.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -62,12 +119,31 @@
       <file leaf-file-name="SOBot.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/SOBot.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="478">
-              <caret line="804" column="0" lean-forward="true" selection-start-line="804" selection-start-column="0" selection-end-line="804" selection-end-column="0" />
+            <state relative-caret-position="228">
+              <caret line="120" column="60" lean-forward="true" selection-start-line="120" selection-start-column="60" selection-end-line="120" selection-end-column="60" />
               <folding>
                 <element signature="e#0#28#0" expanded="true" />
-                <element signature="e#13613#13820#0" expanded="false" />
-                <element signature="e#13886#14079#0" expanded="false" />
+                <element signature="e#167#482#1" expanded="false" />
+                <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+                <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
               </folding>
             </state>
           </provider>
@@ -76,10 +152,10 @@
       <file leaf-file-name="email_services.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/email_services.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="629">
-              <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+            <state relative-caret-position="2227">
+              <caret line="138" column="62" lean-forward="false" selection-start-line="138" selection-start-column="62" selection-end-line="138" selection-end-column="62" />
               <folding>
-                <element signature="e#2#14#0" expanded="true" />
+                <element signature="e#0#12#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -89,36 +165,36 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>rocessedSOs</find>
-      <find>rocessed</find>
-      <find>No price</find>
-      <find>OtherError</find>
-      <find>errors.append</find>
-      <find>logs.append</find>
-      <find>logs.append(originalPDF)</find>
-      <find>processed = True</find>
-      <find>POContents.append</find>
-      <find>rocessedPO</find>
-      <find>output#</find>
-      <find>sel</find>
-      <find>self.self</find>
-      <find>def</find>
-      <find>datepath</find>
-      <find>current</find>
-      <find>str(sumofitems</find>
-      <find>sumofitems</find>
-      <find>Total price not sum of individual items</find>
-      <find>bol</find>
-      <find>date[3]:</find>
-      <find>date[3]</find>
+      <find>PRICEDICTIONARY</find>
+      <find>PODICTIONARY</find>
+      <find>nodicten</find>
+      <find>nodictentry</find>
+      <find>company =</find>
+      <find>leadtimedictionary</find>
+      <find>stric</find>
+      <find>error log</find>
+      <find>podictionary</find>
+      <find>hyst</find>
+      <find>VEE</find>
+      <find>checkDate</find>
+      <find>delta</find>
       <find>pricedictionary</find>
-      <find>fron0</find>
-      <find>tempitems</find>
-      <find>checkdate</find>
-      <find>checkPOdictionary</find>
-      <find>checkPOdic</find>
-      <find>checkPOdict(</find>
-      <find>botf</find>
+      <find>def ch</find>
+      <find>noquantitydictentry</find>
+      <find>mfparts</find>
+      <find>openorderpath</find>
+      <find>openorderdata</find>
+      <find>get_shee</find>
+      <find>index</find>
+      <find>_sheet_names</find>
+      <find>traceba</find>
+      <find>float(row[14])</find>
+      <find>OpenOrder</find>
+      <find>Something</find>
+      <find>fail</find>
+      <find>SJOL/VEST</find>
+      <find>\\</find>
+      <find>vestforecast</find>
     </findStrings>
     <replaceStrings>
       <replace>nodictentry</replace>
@@ -126,6 +202,12 @@
       <replace>self.POContents</replace>
       <replace># logs.append(originalPDF)</replace>
       <replace>self</replace>
+      <replace>nopricedictentry</replace>
+      <replace>polist</replace>
+      <replace>self.openorderpath</replace>
+      <replace>stockprojectionpath</replace>
+      <replace>/</replace>
+      <replace>vestasforecast</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -139,16 +221,42 @@
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_3.py" />
+        <option value="$PROJECT_DIR$/SOBotSettings/PODictionary.csv" />
         <option value="$PROJECT_DIR$/email_services.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_4.py" />
+        <option value="$PROJECT_DIR$/../StockVisualization/StockProjector.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_5.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_6.py" />
+        <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_7.py" />
         <option value="$PROJECT_DIR$/SOBot.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="-1928" />
-    <option name="y" value="96" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
     <option name="width" value="1936" />
     <option name="height" value="1056" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>Python</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>RegExp</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -167,6 +275,7 @@
     </navigator>
     <panes>
       <pane id="Scope" />
+      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -181,11 +290,13 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="Python" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="Errors" />
+    <property name="last.edited.regexp" value="Sample Text" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -200,24 +311,6 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.SOBot">
-    <configuration default="false" name="PDFScraper" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="PDFExtraction" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/PDFScraper.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <method />
-    </configuration>
     <configuration default="false" name="SOBot" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -236,7 +329,7 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="scratch" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="scratch_4" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -248,13 +341,13 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PDFExtraction" />
-      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_4.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="scratch_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="scratch_5" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -266,13 +359,13 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PDFExtraction" />
-      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_5.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <method />
     </configuration>
-    <configuration default="false" name="scratch_2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration default="false" name="scratch_6" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -284,7 +377,25 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="PDFExtraction" />
-      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_2.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_6.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <method />
+    </configuration>
+    <configuration default="false" name="scratch_7" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$APPLICATION_CONFIG_DIR$/scratches" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="PDFExtraction" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_7.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -355,19 +466,19 @@
       <method />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.PDFScraper" />
-      <item index="1" class="java.lang.String" itemvalue="Python.SOBot" />
-      <item index="2" class="java.lang.String" itemvalue="Python.scratch" />
-      <item index="3" class="java.lang.String" itemvalue="Python.scratch_1" />
-      <item index="4" class="java.lang.String" itemvalue="Python.scratch_2" />
+      <item index="0" class="java.lang.String" itemvalue="Python.SOBot" />
+      <item index="1" class="java.lang.String" itemvalue="Python.scratch_4" />
+      <item index="2" class="java.lang.String" itemvalue="Python.scratch_5" />
+      <item index="3" class="java.lang.String" itemvalue="Python.scratch_6" />
+      <item index="4" class="java.lang.String" itemvalue="Python.scratch_7" />
     </list>
     <recent_temporary>
       <list size="5">
         <item index="0" class="java.lang.String" itemvalue="Python.SOBot" />
-        <item index="1" class="java.lang.String" itemvalue="Python.scratch_2" />
-        <item index="2" class="java.lang.String" itemvalue="Python.scratch_1" />
-        <item index="3" class="java.lang.String" itemvalue="Python.scratch" />
-        <item index="4" class="java.lang.String" itemvalue="Python.PDFScraper" />
+        <item index="1" class="java.lang.String" itemvalue="Python.scratch_7" />
+        <item index="2" class="java.lang.String" itemvalue="Python.scratch_6" />
+        <item index="3" class="java.lang.String" itemvalue="Python.scratch_5" />
+        <item index="4" class="java.lang.String" itemvalue="Python.scratch_4" />
       </list>
     </recent_temporary>
   </component>
@@ -388,15 +499,15 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-1928" y="96" width="1936" height="1056" extended-state="6" />
+    <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.1015625" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16354166" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32980973" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -416,7 +527,7 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="5" />
+      <option name="time" value="15" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -427,8 +538,314 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#13613#13820#0" expanded="false" />
-            <element signature="e#13886#14079#0" expanded="false" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2210">
+          <caret line="130" column="32" lean-forward="false" selection-start-line="130" selection-start-column="32" selection-end-line="130" selection-end-column="32" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="986">
+          <caret line="58" column="30" lean-forward="false" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="867">
+          <caret line="58" column="30" lean-forward="false" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="986">
+          <caret line="58" column="30" lean-forward="false" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="986">
+          <caret line="58" column="30" lean-forward="false" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="13005">
+          <caret line="771" column="0" lean-forward="false" selection-start-line="771" selection-start-column="0" selection-end-line="774" selection-end-column="41" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="986">
+          <caret line="58" column="30" lean-forward="false" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/email_services.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="867">
+          <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBot.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#28#0" expanded="true" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
           </folding>
         </state>
       </provider>
@@ -438,7 +855,7 @@
         <state relative-caret-position="1020">
           <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
           <folding>
-            <element signature="e#2#14#0" expanded="true" />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -449,8 +866,27 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#13613#13820#0" expanded="false" />
-            <element signature="e#13886#14079#0" expanded="false" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
           </folding>
         </state>
       </provider>
@@ -460,7 +896,7 @@
         <state relative-caret-position="1139">
           <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
           <folding>
-            <element signature="e#2#14#0" expanded="true" />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -471,8 +907,27 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#13613#13820#0" expanded="false" />
-            <element signature="e#13886#14079#0" expanded="false" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
           </folding>
         </state>
       </provider>
@@ -482,7 +937,7 @@
         <state relative-caret-position="1139">
           <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
           <folding>
-            <element signature="e#2#14#0" expanded="true" />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -493,8 +948,27 @@
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#13613#13820#0" expanded="false" />
-            <element signature="e#13886#14079#0" expanded="false" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
           </folding>
         </state>
       </provider>
@@ -504,7 +978,7 @@
         <state relative-caret-position="1139">
           <caret line="67" column="0" lean-forward="false" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
           <folding>
-            <element signature="e#2#14#0" expanded="true" />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -516,7 +990,7 @@
         <state relative-caret-position="1581">
           <caret line="93" column="24" lean-forward="true" selection-start-line="93" selection-start-column="24" selection-end-line="93" selection-end-column="24" />
           <folding>
-            <element signature="e#2#14#0" expanded="true" />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -551,24 +1025,127 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36-32/Lib/site-packages/PyPDF2/pdf.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="253">
+          <caret line="1603" column="0" lean-forward="false" selection-start-line="1603" selection-start-column="0" selection-end-line="1603" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_3.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="12" lean-forward="true" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBotSettings/PriceDictionary.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-890">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBotSettings/PODictionary.csv">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-238">
+          <caret line="2" column="0" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/SOBotSettings/SOBotSettings.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="102">
+          <caret line="6" column="6" lean-forward="false" selection-start-line="6" selection-start-column="6" selection-end-line="6" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_4.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="34">
+          <caret line="2" column="19" lean-forward="true" selection-start-line="2" selection-start-column="19" selection-end-line="2" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_5.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="13" lean-forward="true" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_6.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="6" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../StockVisualization/StockProjector.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1887">
+          <caret line="111" column="51" lean-forward="true" selection-start-line="111" selection-start-column="51" selection-end-line="111" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36-32/Lib/site-packages/xlwt/Workbook.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1317">
+          <caret line="315" column="36" lean-forward="false" selection-start-line="315" selection-start-column="31" selection-end-line="315" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/AppData/Local/Programs/Python/Python36-32/Lib/site-packages/xlrd/book.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="288">
+          <caret line="458" column="42" lean-forward="false" selection-start-line="458" selection-start-column="30" selection-end-line="458" selection-end-column="42" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$APPLICATION_CONFIG_DIR$/scratches/scratch_7.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="85">
+          <caret line="5" column="17" lean-forward="true" selection-start-line="5" selection-start-column="17" selection-end-line="5" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/email_services.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="629">
-          <caret line="58" column="30" lean-forward="true" selection-start-line="58" selection-start-column="30" selection-end-line="58" selection-end-column="30" />
+        <state relative-caret-position="2227">
+          <caret line="138" column="62" lean-forward="false" selection-start-line="138" selection-start-column="62" selection-end-line="138" selection-end-column="62" />
           <folding>
-            <element signature="e#2#14#0" expanded="true" />
+            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/SOBot.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="478">
-          <caret line="804" column="0" lean-forward="true" selection-start-line="804" selection-start-column="0" selection-end-line="804" selection-end-column="0" />
+        <state relative-caret-position="228">
+          <caret line="120" column="60" lean-forward="true" selection-start-line="120" selection-start-column="60" selection-end-line="120" selection-end-column="60" />
           <folding>
             <element signature="e#0#28#0" expanded="true" />
-            <element signature="e#13613#13820#0" expanded="false" />
-            <element signature="e#13886#14079#0" expanded="false" />
+            <element signature="e#167#482#1" expanded="false" />
+            <marker date="1498755575299" expanded="false" signature="6808:7760" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="7786:9143" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="9168:10741" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="10865:11187" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="11233:14358" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14412:14801" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="14869:15341" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="15368:22661" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="16655:20156" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="22687:54315" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="35922:40574" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="40734:46152" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="46166:48251" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="48316:52846" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="52912:53069" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54351:54919" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="54948:57386" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="57413:60602" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="60629:63610" ph="..." />
+            <marker date="1498755575299" expanded="false" signature="63653:66776" ph="..." />
           </folding>
         </state>
       </provider>

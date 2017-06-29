@@ -1,7 +1,24 @@
 <component name="ProjectDictionaryState">
   <dictionary name="accounts1">
     <words>
+      <w>botaccount</w>
+      <w>botpassword</w>
+      <w>destfolder</w>
+      <w>fetchmailserver</w>
+      <w>freader</w>
       <w>imap</w>
+      <w>leadtime</w>
+      <w>leadtimedictionary</w>
+      <w>leaveunread</w>
+      <w>maxleadtime</w>
+      <w>minleadtime</w>
+      <w>odictionary</w>
+      <w>odictionarycheck</w>
+      <w>originfolder</w>
+      <w>podictionary</w>
+      <w>pricedictionary</w>
+      <w>sendmailserver</w>
+      <w>sendport</w>
       <w>vestas</w>
     </words>
   </dictionary>

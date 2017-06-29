@@ -1,5 +1,3 @@
-
-
 import email
 import imaplib
 import os
@@ -50,14 +48,14 @@ class FetchMail:
             for file in filename.split('\n'):
                 fnparts = filename.split('.')
 
-                if 'Terms for Goods  Services' in fnparts[0] or 'invoice' in fnparts[0].lower() or 'Payment Advice Note' in fnparts[0] or 'scan' in fnparts[0].lower(): #don't want terms documents or invoices or scanned documents
+                if 'Terms for Goods  Services' in fnparts[0] or 'Packing List' in fnparts[0] or 'invoice' in fnparts[0].lower() or 'Payment Advice Note' in fnparts[0] or 'scan' in fnparts[0].lower(): #don't want terms documents or invoices or scanned documents
                     skipped.append(fnparts[0] + '.' + fnparts[1].lower())
-                elif fnparts[1].lower() == 'pdf':
-                    att_path = os.path.join(self.path + fnparts[0] + '.pdf')  # adding i s.t. file is unique !'Doc1.pdf'
+                elif fnparts[1].lower() == 'pdf' or 'xls' in fnparts[1].lower():  # Take pdf, xls, and xlsx
+                    att_path = os.path.join(self.path + fnparts[0] + '.' + fnparts[1].lower())  # adding i such that file is unique !'Doc1.pdf'
                     i = 0
                     while os.path.isfile(att_path):  # don't overwrite
                         i += 1
-                        att_path = os.path.join(self.path + fnparts[0] + '-' + str(i) + '.pdf')
+                        att_path = os.path.join(self.path + fnparts[0] + '-' + str(i) + '.' + fnparts[1].lower())
                     fp = open(att_path, 'wb')
                     fp.write(part.get_payload(decode=True))
                     fp.close()
@@ -123,8 +121,7 @@ class SendMail:
         self.connection.ehlo()
         self.connection.login(self.sender, self.password)
 
-    # Eventually should make attachmentpath optional
-    def composemsg(self, to, subject, body, attachmentpath):
+    def composemsg(self, to, subject, body, attachmentpath=None):
         self.to = to
         msg = MIMEMultipart()
         msg["From"] = self.sender
@@ -133,16 +130,17 @@ class SendMail:
         msg.preamble = "I'm a bot. BEEP. BOOP."
         msg.attach(MIMEText(body, 'plain'))
 
-        # Trying to parse any filetypes according to the python documentation kept giving me errors.
+        # Trying to parse filetypes according to the python documentation kept giving me errors.
         # Just send it as octet stream. Should work for any file type so we don't have to think about it.
-        for log in attachmentpath:
-            attachment = open(log, 'rb')
-            filename = log.replace('./', '')
-            part = MIMEBase('application', "octet-stream")
-            part.set_payload((attachment).read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', 'attachment; filename= %s' % filename)
-            msg.attach(part)
+        if attachmentpath:
+            for log in attachmentpath:
+                attachment = open(log, 'rb')
+                filename = log.replace('./', '').split('\\')[-1]
+                part = MIMEBase('application', "octet-stream")
+                part.set_payload((attachment).read())
+                encoders.encode_base64(part)
+                part.add_header('Content-Disposition', 'attachment; filename= %s' % filename)
+                msg.attach(part)
         self.composed = msg.as_string()
 
     def send(self):

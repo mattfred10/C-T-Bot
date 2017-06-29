@@ -1,15 +1,15 @@
 from email_services import *
+from csvfunctions import *
 
 import PyPDF2
 import re
 import glob
-import csv
 import datetime
 import os
 import xlrd
 import xlwt
+import itertools
 import sys, traceback
-from csvfunctions import *
 
 class SOBOT:
     """A mail checking, sending and PDF scraping bot designed to input C&T customer purchase orders into EFACS as sales 
@@ -142,6 +142,31 @@ class SOBOT:
         if self.printstatus:
             print('Debug mode')
 
+    def dateTupleToDatetime(self, datetuple):
+        """
+        Hopefully, I can replace this soon when I figure out how to store date for EFACS entry.
+        """
+        # Covers two cases found here
+        datetuple = str(datetuple)
+        if '-' in datetuple:
+            date = datetuple.split('-')
+        else:
+            date = datetuple.replace('(','').replace(')','').split(',')
+
+        return datetime.date(int(date[0]),int(date[1]),int(date[2]))
+
+    def get_sheet_by_name(self, name):
+        """
+        Get sheet from xlwt object by name
+        """
+        try:
+            for i in itertools.count():
+                s = self.book.get_sheet(i)
+                if s.name == name:
+                    return s
+        except IndexError:
+            raise # We catch this later in case their are case issues (vesta123 vs VESTAS123)
+
     def fetchMail(self):
         """Download attachments fetching functions.
 
@@ -205,7 +230,7 @@ class SOBOT:
             errorReporter.send()
             errorReporter.close_connection()
 
-    # Look up sets instead of list (hash like dictionary but no value)
+    # Consider a set instead of a list (hash so faster)
     def checkPOdictionary(self, PONumber, company):
         """Checks the PO dictionary and adds any missing entries"""
         if self.POdictionarycheck:
@@ -960,7 +985,7 @@ class SOBOT:
     def replaceWithSQLQuery(self):
         """
         Uses an EFACS xls report to collect current stock levels and open orders from the database
-        At the very least, this should be repalced with a scrape of the enquiry webpage so user doesn't ahve to intervene
+        At the very least, this should be replaced with a scrape of the enquiry webpage so user doesn't have to intervene
         """
 
         wb = xlrd.open_workbook('./test.xls')
@@ -1002,22 +1027,20 @@ class SOBOT:
         #
         ######
 
-        searchpart = ''  # Initialize this as empty so that the rest of the code works even with no search part
-        if self.mfparts:  # Make sure we have parts to search for
-            mfpartcalcs = {}
-            if row[0] == 'Part :':
-                searchpart = ''  # Reset search part on new item (mf item that we are counting stock for)
-                for mfpart in self.mfparts:
-                    if row[1] in mfpart:
-                        searchpart = row[1]
-                        mfpartcalcs[searchpart] = 0  # Create quantity for the part
-
-        if searchpart:  # if current looping item is a part we want to keep track of
-            mfpartcalcs[searchpart] = mfpartcalcs[searchpart] + float(row[4])  # Next to itemstock in while loop
+        # searchpart = ''  # Initialize this as empty so that the rest of the code works even with no search part
+        # if self.mfparts:  # Make sure we have parts to search for
+        #     mfpartcalcs = {}
+        #     if row[0] == 'Part :':
+        #         searchpart = ''  # Reset search part on new item (mf item that we are counting stock for)
+        #         for mfpart in self.mfparts:
+        #             if row[1] in mfpart:
+        #                 searchpart = row[1]
+        #                 mfpartcalcs[searchpart] = 0  # Create quantity for the part
+        #
+        # if searchpart:  # if current looping item is a part we want to keep track of
+        #     mfpartcalcs[searchpart] = mfpartcalcs[searchpart] + float(row[4])  # Next to itemstock in while loop
 
     def writeFiles(self):
-
-        print(self.GRN)
 
         # Need to create directory
         if not os.path.exists(self.stockprojectionpath):
@@ -1028,7 +1051,6 @@ class SOBOT:
         outputfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_SalesOrders.csv')
         self.logs.append(outputfilename)
         writeListToCSV(outputfilename, self.POContents)
-
 
         errorfilename = datetime.datetime.now().strftime(self.datepath + '%y-%m-%d_%H%M_ErrorLog.csv')
         self.logs.append(errorfilename)
@@ -1041,6 +1063,9 @@ class SOBOT:
             self.logs.append(baddictfilename)
             writeListToCSV(baddictfilename, self.nopricedictentry)
 
+        grnfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_GRNs.csv')
+        self.logs.append(grnfilename)
+        writeListToCSV(grnfilename, self.GRN)
 
         # save the PO dictionary
         writeListToCSV(self.PODICTIONARYPATH, self.polist)
@@ -1061,46 +1086,249 @@ class SOBOT:
         if self.GEopenorders:
             writeListToCSV(self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv', self.GEopenorders)
 
-    def writeExcel(self):
+    def calculateManufacturedParts(self):
+        if self.printstatus:
+            print('Calculating manufactured parts...')
+
+        # No get_sheet_by_name() in xlwt.workbook, so we need a work around.
+        # Need to keep the old workbook writer open because we are going to write the output
+        # of this function as a new sheet.
+
+        bookcopy = xlrd.open_workbook(self.stockprojectionpath + 'StockProjections.xls')
+
+        # Get the parent and child parts
+        mfcalcs = []
+        for mfpart in self.mfparts:
+            partcalcs = []
+            mfqtys = []
+            # Get parent stock requests (should all be negative)
+            try:
+                try:  # Not entirely sure how consistent this capitalization is. Hopefully they don't use Title case.
+                    if self.printstatus:
+                        print(mfpart[0].upper())
+                    s = bookcopy.sheet_by_name(mfpart[0].upper()) # These should be unique
+                except:
+                    s = bookcopy.sheet_by_name(mfpart[0].lower())
+            except:
+                continue  # Some manufactured parts might not be on order. Just move on to the next part if there are no movements.
+            # Put date and required inventory in list
+            for row in range(s.nrows):
+                # Need to pass over variable number of unfullfilled POs and SOs
+                # Skipping them will make sure dates line up below
+                if "Opening" in str(s.cell(row, 0).value) or self.dateTupleToDatetime(s.cell(row, 1).value) < self.today:  # change to self.today - testing on old data
+                    continue
+                partcalcs.append([str(s.cell(row, 1).value), str(s.cell(row, 3).value)])  # date, mfpart stock
+
+            # Append all of the required child parts
+            for i in range(len(mfpart)//2):  # Get the other parts and their stock levels - should be @ index 1,3,5, etc.
+                try:
+                    s = bookcopy.sheet_by_name(mfpart[i * 2 + 1].upper())
+                except:
+                    s = bookcopy.sheet_by_name(mfpart[i * 2 + 1].lower())
+                mfqtys.append(mfpart[i * 2 + 2])
+                skipped = 0
+                for row in range(s.nrows):
+                    date = str(s.cell(row, 1).value).split('-')
+                    if "Opening" in str(s.cell(row, 0).value) or datetime.date(int(date[0]),int(date[1]),int(date[2])) < self.today:
+                        skipped += 1
+                        continue
+                    row -= skipped
+                    partcalcs[row].extend([str(s.cell(row, 3).value)])  # extend each row by child part stock
+
+            # Add the smallest number of each manufactured part you can
+            for row in partcalcs:
+                # mfqtys should have 1 entry per item and row[2:] should be the same length (i.e., stock for each of the items)
+                limitingpart = min([float(b) / float(a) for a, b in zip(mfqtys, row[2:])])
+                row.extend([limitingpart, float(row[1])+limitingpart])  # row[1] should be negative (requested stock) and limiting part should be positive
+
+            mfcalcs.append(partcalcs)
+
+
+        for i,part in enumerate(mfcalcs):
+            try:
+                try:
+                    sheet = self.get_sheet_by_name(self.mfparts[i][0].upper())  # xlwt doesn't have get sheet by name. This ensures we have the correct sheet
+                    totrows = bookcopy.sheet_by_name(self.mfparts[i][0].upper()).nrows
+                except:
+                    sheet = self.get_sheet_by_name(self.mfparts[i][0].lower())
+                    totrows = bookcopy.sheet_by_name(self.mfparts[i][0].lower()).nrows
+            except:
+                continue  # As before, skip manufactured parts that don't have activity
+            skipped = totrows - len(part)  # skipped rows earlier. want to line up dates
+            components = len(self.mfparts[i])//2  # needed to get the correct column for the output (skip number of components per mf item)
+            for j,row in enumerate(part):
+                sheet.write(j + skipped, 6, row[components + 2])  #Open orders come before these values
+                sheet.write(j + skipped, 7, row[components + 3])
+
+        self.book.save(self.stockprojectionpath + 'StockProjections.xls')
+
+    def TEMP(self):
+        """
+        This whole thing could be refactored to be much more efficient.
+        You can really see how I went step by step through the code.
+        It's plenty fast though, so probably not worth it.
+        Also, it might be easier to fix with all the various breakpoints if something changes.
+        """
+
+        monthdict = {'january': 1,
+                     'february': 2,
+                     'march': 3,
+                     'april': 4,
+                     'may': 5,
+                     'june': 6,
+                     'july': 7,
+                     'august': 8,
+                     'september': 9,
+                     'october': 10,
+                     'november': 11,
+                     'december': 12}
+
+        today = datetime.date.today()
+
+        # Open workbook and create empty list to store items from workbook
+        wb = xlrd.open_workbook('./test.xls')
+        data = []
+
+        # Collect items from workbook into empty list
+        for s in wb.sheets():
+            for row in range(s.nrows):
+                values = []
+                for col in range(s.ncols):
+                    values.append(str(s.cell(row, col).value))
+                data.append(values)
+
+        openorderdata = []
+        openorderdata.extend(self.HYopenorders)
+        openorderdata.extend(self.VESTASJOopenorders)
+        openorderdata.extend(self.GEopenorders)
+
+        # Only collect rows with data
+        # Set collect Row to false in between items (indicated by "Nett change"
+        # Set to active when a new part occurs (Part number is separated from rest so doesn't use this variable)
+        collectrow = False
+        activity = []
+        for row in data:
+            if row[0] == 'Nett change :':
+                collectrow = False
+                continue
+            elif row[0] == 'Part :':
+                activity.append(row)
+            elif row[0] == 'Opening stock':
+                collectrow = True
+            if collectrow:
+                activity.append(row)
+
+        # Original data have all parts. Only collect parts with activity predicted.
+        # Parts without activity will only have Opening stock reports.
+        # Check for row+2 if it is also a Part number, skip ahead
+        # Collect other parts
+        activeparts = []
+        skip = False
+        for i, row in enumerate(activity):
+            if skip:
+                skip = False
+                continue
+            try:  # If last part in list has no activity, i+2 will cause list index exception. We'll just break here.
+                if row[0] == 'Part :' and activity[i + 2][0] == 'Part :':
+                    skip = True
+                    continue
+                else:
+                    activeparts.append(row)
+            except:
+                break
+
+        # Fill in missing dates and the projected stock on those dates
+        # Better for visualization and excel doesn't seem to easily/quickly do this
+        fulldate = []
+        itemstock = 0
+        d = today
+        lastdate = d + datetime.timedelta(
+            days=360)  # put it sufficiently far in the future that the first loop won't get caught
+        delta = datetime.timedelta(days=1)
+        for i, row in enumerate(activeparts):
+            if row[0] == 'Part :' and d <= today + datetime.timedelta(days=60):
+                if i > 0:  # Populate dates from last PO/SO up to end of forecast range (skip if first part)
+                    while d < today + datetime.timedelta(days=60):
+                        fulldate.append(['', '', '', d, 0, itemstock])
+                        d += delta
+                fulldate.append(row)  # Append part now - effectively starting new part
+                itemstock = 0  # Reset item stock tracker
+                d = today
+                continue
+            if row[0] == 'Opening stock':
+                itemstock += float(row[4])  # Add opening stock to tracker
+                row[3] = today  # Insert correct opening date
+                row[4] = 0  # Don't want to show opening stock as purchase
+                fulldate.append(row)
+                continue
+
+            rowdate = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
+                                    int(row[3].split()[0]))
+
+            if rowdate == lastdate:  # Sometimes there are two activities on one date - this is saved from last loop
+                row[3] = lastdate  # Convert date format
+                itemstock += float(row[4])  # Make stock adjustment
+                row[5] = itemstock
+                fulldate.append(row)
+                continue  # Keeping same lastdate and d should already be incremented
+
+            if rowdate < today:  # Active entries with due dates before today
+                row[3] = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
+                                       int(row[3].split()[0]))
+                fulldate.append(row)
+                continue
+
+            while d < today + datetime.timedelta(days=60):
+                if rowdate > d:
+                    fulldate.append(['', '', '', d, 0, itemstock])
+                elif rowdate == d:
+                    row[3] = d  # Convert date format
+                    itemstock += float(row[4])  # Make stock adjustment
+                    row[5] = itemstock
+                    fulldate.append(row)
+                    lastdate = rowdate  # Sometimes there are two activities on one date
+                    d += delta  # Need to iterate here so we don't get two rows for the same date
+                    break
+                d += delta
+
         # Converting to XLS with each part as it's own sheet.
         # Simplifies graphing procedure
         # Could consider using matplotlib or something similar
 
         n = 0  # Sheet number
-
-        openorderdata = []
-        openorderdata.extend(self.HYopenorders, self.VESTASJOopenorders, self.GEopenorders)
-
+        self.book = xlwt.Workbook()  # Create a workbook
         for row in fulldate:
             if row[0] == 'Part :':
-                pastdueneeded = True  # Make sure we only check for these once or else they will be added every loop.
+                pastdueneeded = True
                 # New part - add a sheet for it (can't have / in sheet names)
                 # Need to overwrite sheets so that the open items can be added tot he third column
                 self.book.add_sheet(str(row[1].replace('/', '-')), cell_overwrite_ok=True)
                 sheet = self.book.get_sheet(n)
                 n += 1
-                rowiterator = 0  # Needed to write rows with correct index (can't use enumerate because count restarts on new sheet)
-                openquanties = []
+                rowiterator = 0  # Needed to write rows with correct index (can't use enumerate i bc we start new sheets)
 
+                openquanties = []
                 for openitem in openorderdata:  # Check if part number has open items and append to list (added to outfile below)
-                    if row[1].lower().replace('vestas', '') in openitem or row[1].lower().replace('sjo-','') in openitem:
+                    # This could probably be cleaned up some
+                    if str(row[1].lower().replace('vestas', '').replace('hyster-','').replace('sjo-','').replace('ge-','')) in openitem[0]:
                         openquanties.append(openitem)
 
             else:
                 for i, openitem in enumerate(openquanties):
-                    if openitem[3] < self.today and pastdueneeded:  # Make sure we add past due items
-                        sheet.write(rowiterator, 1, str(openitem[3]))
-                        sheet.write(rowiterator, 2, 0)  # Sticking zeros here because excel doesn't graph correctly if the top row has empty cells
+                    if self.dateTupleToDatetime(openitem[2]) < today and pastdueneeded:  # Make sure we add past due items
+                        sheet.write(rowiterator, 1, str(self.dateTupleToDatetime(openitem[2])))  # We use this convoluted approach because it's more typesafe
+                        sheet.write(rowiterator, 2,
+                                    0)  # Sticking zeros here because excel doesn't graph correctly if the top row has empty cells
                         sheet.write(rowiterator, 3, 0)
-                        sheet.write(rowiterator, 4, float(openitem[2]) * -1)
-                        sheet.write(rowiterator, 5, str(openitem[0]))
+                        sheet.write(rowiterator, 4, float(openitem[3]) * -1)
+                        sheet.write(rowiterator, 5, str(openitem[1]))
                         rowiterator += 1
-                    if openitem[3] == row[3] and openquanties[i - 1][3] == row[3]:
-                        sheet.write(rowiterator, 4, float(openitem[2]) * -1)
-                        sheet.write(rowiterator, 5, str(openitem[0] + ' & ' + openquanties[i - 1][0]))
-                    elif openitem[3] == row[3]:
-                        sheet.write(rowiterator, 4, float(openitem[2]) * -1)
-                        sheet.write(rowiterator, 5, str(openitem[0]))
+                    if self.dateTupleToDatetime(openitem[2]) == row[3] and self.dateTupleToDatetime(openquanties[i - 1][2]) == row[3]: # Two actions on the same day
+                        sheet.write(rowiterator, 4, float(openitem[3]) * -1)
+                        sheet.write(rowiterator, 5, str(openitem[1] + ' & ' + openquanties[i - 1][1]))
+                    elif self.dateTupleToDatetime(openitem[2]) == row[3]:
+                        sheet.write(rowiterator, 4, float(openitem[3]) * -1)
+                        sheet.write(rowiterator, 5, str(openitem[1]))
 
                 pastdueneeded = False
 
@@ -1114,75 +1342,15 @@ class SOBOT:
 
         self.book.save(self.stockprojectionpath + 'StockProjections.xls')
 
-    def calculateManufacturedParts(self):
-        if self.printstatus:
-            print('Calculating manufactured parts...')
-
-        # No get_sheet_by_name() in xlwt.workbook
-        # Just reopening saved book
-        # Could write a method to work on the alraedy open workbook and skip this step
-        # N.B.: This was a xlwt object but is now a xlrd object
-        excelFile = self.stockprojectionpath + 'StockProjections.xls'
-        self.book = xlrd.open_workbook(excelFile)
-
-        # Get the parent and child parts
-        mfcalcs = []
-        for mfpart in self.mfparts:
-            partcalcs = []
-            mfqtys = []
-            # Get parent stock requests (should all be negative)
-            try:  # Not entirely sure how consistent this capitalization is. Hopefully they don't use Title case.
-                if self.printstatus:
-                    print(mfpart[0].upper())
-                s = self.book.sheet_by_name(mfpart[0].upper()) # These should be unique
-            except:
-                s = self.book.sheet_by_name(mfpart[0].lower())
-            # Put date and required inventory in list
-            for row in range(s.nrows):
-                # Need to pass over variable number of unfullfilled POs and SOs
-                # Skipping them will make sure dates line up below
-                date = str(s.cell(row, 1).value).split('-')
-                if "Opening" in str(s.cell(row, 0).value) or datetime.date(int(date[0]),int(date[1]),int(date[2])) < datetime.date(2017, 6, 21):  # change to self.today - testing on old data
-                    continue
-                partcalcs.append([str(s.cell(row, 1).value), str(s.cell(row, 3).value)])  # date, mfpart stock
-
-            # Append all of the required child parts
-            for i in range(len(mfpart)//2):  # Get the other parts and their stock levels - should be @ index 1,3,5, etc.
-                try:
-                    s = self.book.sheet_by_name(mfpart[i*2+1].upper())
-                except:
-                    s = self.book.sheet_by_name(mfpart[i * 2 + 1].lower())
-                mfqtys.append(mfpart[i * 2 + 2])
-                skipped = 0
-                for row in range(s.nrows):
-                    date = str(s.cell(row, 1).value).split('-')
-                    if "Opening" in str(s.cell(row, 0).value) or datetime.date(int(date[0]),int(date[1]),int(date[2])) < datetime.date(2017, 6, 21):
-                        skipped += 1
-                        continue
-                    row -= skipped
-                    partcalcs[row].extend([str(s.cell(row, 3).value)])  # extend each row by child part stock
-
-            # Add the smallest number of each manufactured part you can
-            for row in partcalcs:
-                # mfqtys should have 1 entry per item and row[2:] should be the same length
-                limitingpart = min([float(a) * float(b) for a, b in zip(mfqtys, row[2:])])
-                row.extend([limitingpart, float(row[1])+limitingpart])  # row[1] should be negative (requested stock) and limiting part should be positive
-
-            mfcalcs.append(partcalcs)
-
-
-        print(mfcalcs)
-        print('Write this output to excel')
-
-
-
 if __name__ == "__main__":
     bot = SOBOT()
     bot.debug()  # leaveunread=True POdictionarycheck=False originfolder='./', destfolder='./', PDFtoText=True
-    bot.fetchMail()
-    bot.scrapePDF()
+    #bot.fetchMail()
+    #bot.scrapePDF()
     bot.parseExcel()
     bot.writeFiles()
-    #bot.calculateManufacturedParts()
+    bot.projectStock()
+    bot.TEMP()
+    bot.calculateManufacturedParts()
     #bot.sendMail()
 

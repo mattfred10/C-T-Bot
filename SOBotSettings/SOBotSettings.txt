@@ -17,23 +17,23 @@
 	#or > today + maximum leadtime in the future
 	
 	MAXLEADTIME = 180
-	LEADTIMEDICTIONARY = .\SOBotSettings\LeadtimeDictionary.csv
+	LEADTIMEDICTIONARYPATH = .\SOBotSettings\LeadtimeDictionary.csv
 	
 	# Number of vestas turbines forecast per week
 	NUMVESTTURBINES = 35
 	# Location of the dictionary of part numbers per turbines
 	# The program multiplies these values so the forecast should only include the per turbine part list and number
-	VESTASPARTFORECAST = .\SOBotSettings\VestasPartForecast.csv
+	VESTASPARTFORECASTPATH = .\SOBotSettings\VestasPartForecast.csv
 	
 	# List of manufactured parts and their components
-	MFPARTS = .\SOBotSettings\ManufacturedParts.csv
+	MFPARTSPATH = .\SOBotSettings\ManufacturedParts.csv
 	
 	#Path to price dictionary
-	PRICEDICTIONARY = .\SOBotSettings\PriceDictionary.csv
+	PRICEDICTIONARYPATH = .\SOBotSettings\PriceDictionary.csv
 	#Path to purchase order dictionary - used to avoid duplicate PO entry
-	PODICTIONARY = .\SOBotSettings\PODictionary.csv
+	PODICTIONARYPATH = .\SOBotSettings\PODictionary.csv
 	# Path to quantity dictionary
-	QUANTITYDICT = .\SOBotSettings\QuantityDictionary.csv
+	QUANTITYDICTPATH = .\SOBotSettings\QuantityDictionary.csv
 	
 	# Save path for stock projections and open orders
 	STOCKPROJECTIONPATH = .\StockProjection\

@@ -9,6 +9,7 @@ import os
 import xlrd
 import xlwt
 import sys, traceback
+from csvfunctions import *
 
 class SOBOT:
     """A mail checking, sending and PDF scraping bot designed to input C&T customer purchase orders into EFACS as sales 
@@ -47,15 +48,15 @@ class SOBOT:
             self.SENDPORT = re.search(r'SENDPORT[ ]*=[ ]*([\S]+)', opt)[1]
             self.SENDMAILSERVER = re.search(r'SENDMAILSERVER[ ]*=[ ]*([\S]+)', opt)[1]
 
-            LEADTIMEDICTIONARY = re.search(r'LEADTIMEDICTIONARY[ ]*=[ ]*([\S]+)', opt)[1]  # chosen by user
-            PRICEDICTIONARY = re.search(r'PRICEDICTIONARY[ ]*=[ ]*([\S]+)', opt)[1]  # needs to be checked so not auto written
-            self.PODICTIONARY = re.search(r'PODICTIONARY[ ]*=[ ]*([\S]+)', opt)[1]  # used to write file at end.
-            QUANTITYDICT = re.search(r'QUANTITYDICT[ ]*=[ ]*([\S]+)', opt)[1]
+            LEADTIMEDICTIONARYPATH = re.search(r'LEADTIMEDICTIONARYPATH[ ]*=[ ]*([\S]+)', opt)[1]  # chosen by user
+            PRICEDICTIONARYPATH = re.search(r'PRICEDICTIONARYPATH[ ]*=[ ]*([\S]+)', opt)[1]  # needs to be checked so not auto written
+            self.PODICTIONARYPATH = re.search(r'PODICTIONARYPATH[ ]*=[ ]*([\S]+)', opt)[1]  # used to write file at end.
+            QUANTITYDICTPATH = re.search(r'QUANTITYDICTPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
             NUMVESTASTURBINES = re.search(r'NUMVESTTURBINES[ ]*=[ ]*([\S]+)', opt)[1]
-            VESTASPARTFORECAST = re.search(r'VESTASPARTFORECAST[ ]*=[ ]*([\S]+)', opt)[1]
+            VESTASPARTFORECASTPATH = re.search(r'VESTASPARTFORECASTPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
-            MFPARTS = re.search(r'MFPARTS[ ]*=[ ]*([\S]+)', opt)[1]
+            MFPARTSPATH = re.search(r'MFPARTSPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
             self.stockprojectionpath =  re.search(r'STOCKPROJECTIONPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
@@ -73,59 +74,37 @@ class SOBOT:
         # Store list of output files for attachment to email - bad dict entries, error log, bad pdfs, and good SOs
         self.logs = []
         # Store list of open orders for checking with StockPredictor
-        self.VESTSJOopenorders = []
+        self.VESTASJOopenorders = []
         self.HYopenorders = []
         self.GEopenorders = []
 
-        # Create dictionaries used throughout
+        # Create dictionaries and lists used throughout
         # Dictionary of minimum lead times for POs key: company, value: time in days
-        # Throws as error to alert account executive
-        self.leadtimedictionary = {}
-        with open(LEADTIMEDICTIONARY) as dictfile:
-            dictentries = csv.reader(dictfile)
-            for line in dictentries:
-                self.leadtimedictionary[line[0]] = line[1]
-
+        self.leadtimedictionary = readCSVtodictionary(LEADTIMEDICTIONARYPATH)
         # Ensure that PO item prices match correct values
-        # In the case of hyster, this is required.
-        self.pricedictionary = {}
-        with open(PRICEDICTIONARY) as dictfile:
-            dictentries = csv.reader(dictfile)
-            for line in dictentries:
-                # use tuple of company (i.e., VEST01, etc) and item
-                # companies have different prices
-                self.pricedictionary[(line[0], line[1])] = line[2]
+        self.pricedictionary = readCSVto2tupledictionary(PRICEDICTIONARYPATH)
+        # Create dictionary of part number : box quantities
+        self.quantitydict = readCSVtodictionary(QUANTITYDICTPATH)
+        # Import list of manufactured parts and the component parts
+        self.mfparts = readCSVtolist(MFPARTSPATH)
 
         # Similarly, create a list of previous POs. Don't want duplicate entries in EFACS
         # This seems better than just checking if a tuple exists for the pair
-        # Can't use PONum:Company as originally planned in case companies have the same PONumber, so need to use tuple
-        # try to change language throughout to reflect this change.
+        # Can't use PONum:Company in case companies have the same PONumber, so need to use tuple
+        # This should be replaced with SQL in the future so we get POs from the db
         self.polist = []
-        with open(self.PODICTIONARY) as podictfile:
+        with open(self.PODICTIONARYPATH) as podictfile:
             podictentries = csv.reader(podictfile)
             for item in podictentries:
                 self.polist.append((item[0], item[1]))
 
-        # Create dictionary of part number : box quantities
-        self.quantitydict = {}
-        with open(QUANTITYDICT) as qtdictfile:
-            qtdictentries = csv.reader(qtdictfile)
-            for item in qtdictentries:
-                self.quantitydict[item[0]]= item[1]
-
         # Create dictionary of vestas part forecasts
+        # Need to multiply by variable number of turbines per week
         self.vestasforecast = {}
-        with open(VESTASPARTFORECAST) as forecast:
+        with open(VESTASPARTFORECASTPATH) as forecast:
             forecastentries = csv.reader(forecast)
             for item in forecastentries:
-                self.vestasforecast[item[0]] = int(item[1]) * NUMVESTASTURBINES  # Forecasted number of parts
-
-        # Import list of manufactured parts and the component parts
-        self.mfparts = []
-        with open(MFPARTS) as mf:
-            mfentries = csv.reader(mf)
-            for item in mfentries:
-                self.mfparts.append(item)  # Info about manufactured parts
+                self.vestasforecast[item[0]] = int(item[1]) * int(NUMVESTASTURBINES)  # Forecasted number of parts
 
         # Create Excel workbook for output
         self.book = xlwt.Workbook()  # Create a workbook
@@ -422,7 +401,7 @@ class SOBOT:
                 for row in data[1:]:
                     tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
                     # [part, po, date, quantity]
-                    self.VESTSJOopenorders.append([row[3], row[2], (tempdate[0],tempdate[1],tempdate[2]), row[7]])
+                    self.VESTASJOopenorders.append([row[3], row[2], (tempdate[0],tempdate[1],tempdate[2]), row[7]])
                 try:
                     os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_OO.xlsx')
                 except FileExistsError:
@@ -1000,28 +979,16 @@ class SOBOT:
         """
 
         # Need to read open orders from disk because open orders only arrive once a week and are asynchronus.
-        # Reading from disk ensures that we have the latest open orders from customers\
+        # Reading from disk ensures that we have the latest open orders from customers
         # Can skip reading if lists are still in memory because that indicates that they arrived today
         if not self.HYopenorders:
-            hyoofilename = self.stockprojectionpath + '\OpenOrders\HYOpenOrders.csv'
-            with open(hyoofilename) as oos:
-                hyooitems = csv.reader(oos)
-                for line in hyooitems:
-                    self.HYopenorders.append(line)
+            self.HYopenorders = readCSVtolist(self.stockprojectionpath + '\OpenOrders\HYOpenOrders.csv')
 
-        if not self.VESTSJOopenorders:
-            vestfilename = self.stockprojectionpath + '\OpenOrders\VESTSJOOpenOrders.csv'
-            with open(vestfilename) as oos:
-                VSooitems = csv.reader(oos)
-                for line in VSooitems:
-                    self.VESTSJOopenorders.append(line)
+        if not self.VESTASJOopenorders:
+            self.VESTASJOopenorders = readCSVtolist(self.stockprojectionpath + '\OpenOrders\VESTSJOOpenOrders.csv')
 
         if not self.GEopenorders:
-            GEfilename = self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv'
-            with open(GEfilename) as oos:
-                GEooitems = csv.reader(oos)
-                for line in GEooitems:
-                    self.GEopenorders.append(line)
+            self.GEopenorders = readCSVtolist(self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv')
 
         if datetime.date.today().weekday() == 0:  # 0 = Monday 6 = Sunday --  d should be datetime object in future. (d.weekday())
             pass
@@ -1060,33 +1027,23 @@ class SOBOT:
         # including hours and minutes so that this program can be run twice in one day
         outputfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_SalesOrders.csv')
         self.logs.append(outputfilename)
-        with open(outputfilename, 'w', newline='') as outfile:
-            itemwriter = csv.writer(outfile, delimiter=",")
-            for item in self.POContents:
-                itemwriter.writerow(item)
+        writeListToCSV(outputfilename, self.POContents)
+
 
         errorfilename = datetime.datetime.now().strftime(self.datepath + '%y-%m-%d_%H%M_ErrorLog.csv')
         self.logs.append(errorfilename)
-        with open(errorfilename, 'w', newline='') as errfile:
-            errwriter = csv.writer(errfile, delimiter=",")
-            for item in self.errors:
-                errwriter.writerow(item)
+        writeListToCSV(errorfilename, self.errors)
 
         if len(self.nopricedictentry) > 0:
             # set output file name
             # including hours and minutes so that this program can be run twice in one day
             baddictfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_NoPriceDictionaryEntry.csv')
             self.logs.append(baddictfilename)
-            with open(baddictfilename, 'w', newline='') as out:
-                itemwr = csv.writer(out, delimiter=",")
-                for item in self.nopricedictentry:
-                    itemwr.writerow(item)
+            writeListToCSV(baddictfilename, self.nopricedictentry)
+
 
         # save the PO dictionary
-        with open(self.PODICTIONARY, 'w', newline='') as foundPOs:
-            itemwr = csv.writer(foundPOs, delimiter=",")
-            for item in self.polist:
-                itemwr.writerow(item)
+        writeListToCSV(self.PODICTIONARYPATH, self.polist)
 
         # Writing open orders to disk and overwriting previous files. Only write if some were found
         # This way we always have the most recent report even though they are
@@ -1094,27 +1051,15 @@ class SOBOT:
 
         # Save HY open orders
         if self.HYopenorders:
-            HYopenorderfilename = self.stockprojectionpath + '\OpenOrders\HYOpenOrders.csv'
-            with open(HYopenorderfilename, 'w', newline='') as openorders:
-                oowriter = csv.writer(openorders, delimiter=",")
-                for row in self.HYopenorders:
-                    oowriter.writerow(row)
+            writeListToCSV(self.stockprojectionpath + '\OpenOrders\HYOpenOrders.csv', self.HYopenorders)
 
         # Save VEST and SJO open orders (arrive in the same email)
-        if self.VESTSJOopenorders:
-            VESTSJOopenorderfilename = self.stockprojectionpath + '\OpenOrders\VESTSJOOpenOrders.csv'
-            with open(VESTSJOopenorderfilename, 'w', newline='') as openorders:
-                oowriter = csv.writer(openorders, delimiter=",")
-                for row in self.VESTSJOopenorders:
-                    oowriter.writerow(row)
+        if self.VESTASJOopenorders:
+            writeListToCSV(self.stockprojectionpath + '\OpenOrders\VESTSJOOpenOrders.csv', self.VESTASJOopenorders)
 
         # Save GE open orders
         if self.GEopenorders:
-            GEopenorderfilename = self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv'
-            with open(GEopenorderfilename, 'w', newline='') as openorders:
-                oowriter = csv.writer(openorders, delimiter=",")
-                for row in self.GEopenorders:
-                    oowriter.writerow(row)
+            writeListToCSV(self.stockprojectionpath + '\OpenOrders\GEOpenOrders.csv', self.GEopenorders)
 
     def writeExcel(self):
         # Converting to XLS with each part as it's own sheet.
@@ -1124,7 +1069,7 @@ class SOBOT:
         n = 0  # Sheet number
 
         openorderdata = []
-        openorderdata.extend(self.HYopenorders, self.VESTSJOopenorders, self.GEopenorders)
+        openorderdata.extend(self.HYopenorders, self.VESTASJOopenorders, self.GEopenorders)
 
         for row in fulldate:
             if row[0] == 'Part :':
@@ -1229,8 +1174,6 @@ class SOBOT:
         print(mfcalcs)
         print('Write this output to excel')
 
-    def forecastParts(self):
-        
 
 
 if __name__ == "__main__":
@@ -1240,6 +1183,6 @@ if __name__ == "__main__":
     bot.scrapePDF()
     bot.parseExcel()
     bot.writeFiles()
-    bot.calculateManufacturedParts()
+    #bot.calculateManufacturedParts()
     #bot.sendMail()
 

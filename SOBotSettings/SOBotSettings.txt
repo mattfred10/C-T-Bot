@@ -11,7 +11,7 @@
 	# + date automatically occurs during bot init
     SUBJECT = SO status logs for 
 	# % date automatically occurs during bot init
-    BODY = The status logs for %s are attached. If there is no error log, all of the files were added successfully. Please review all of the files.\n\nCurrently, these files are not being added to the EFACs server.
+    BODY = The status logs for %s are attached. If there is no error log, all of the files were added successfully. Please review all of the files.\r\n\r\n Currently, these files are not being added to the EFACs server.
 	
 	#Lead time in days - throw an error if the lead time is < today + minimum leadtime
 	#or > today + maximum leadtime in the future
@@ -39,7 +39,7 @@
 	STOCKPROJECTIONPATH = .\StockProjection\
 	
     #Email account for the bot. Should be only used by the bot.
-    BOTACCOUNT = accounts1@cooperandturner-usa.com/services
+    BOTACCOUNT = accounts1@cooperandturner-usa.com
 	#Password for said account
     BOTPASSWORD = Denver8o221!
     #Fetch variables

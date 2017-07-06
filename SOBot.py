@@ -17,15 +17,17 @@ class SOBOT:
     many routines built in for trouble shooting and modification.    
     """
 
-    def __init__(self, optionsfile='./SOBotSettings/SOBotSettings.txt'):
+
+    def __init__(self, optionsfile='.\\SOBotSettings\\SOBotSettings.txt'):
         """Load options"""
 
         # Get date and subsequent path creation
+        # Using windows file paths throughout. Glob kept giving errors with mixed filepaths.
         self.today = datetime.date.today()
         self.datestring = self.today.strftime("%Y-%m-%d")
-        self.datepath = self.today.strftime('%Y/%m/%d/')
-        self.processedpath = self.datepath + 'ProcessedSOs/'
-        self.unprocessedpath = self.datepath + 'UnprocessedSOs/'
+        self.datepath = self.today.strftime('%Y\\%m\\%d\\')
+        self.processedpath = self.datepath + 'ProcessedSOs\\'
+        self.unprocessedpath = self.datepath + 'UnprocessedSOs\\'
         if not os.path.exists(self.processedpath):
             os.makedirs(self.processedpath)
         if not os.path.exists(self.unprocessedpath):
@@ -313,9 +315,7 @@ class SOBOT:
 
     def checkQuantities(self, partnumber, quantity):
         try:
-            print('here')
             if quantity % float(self.quantitydict[partnumber]) != 0:
-                print('NOT')
                 return "The box quantity is incorrect for part number " + partnumber
         except KeyError:
             self.noquantitydictentry.append([partnumber, quantity])
@@ -512,7 +512,7 @@ class SOBOT:
             # open text file and write the PDFContents
             if self.PDFtoText:
                 # create filename for scraped text
-                textfile = self.processedpath + originalPDF.split('/')[-1].split('.')[0] + '_scraped.txt'
+                textfile = self.processedpath + originalPDF.split('\\')[-1].split('.')[0] + '_scraped.txt'
                 with open(textfile, 'w') as pdfout:
                     pdfout.write(PDFContents)
             # Can't effectively eliminate engineering drawing from file names
@@ -766,7 +766,7 @@ class SOBOT:
                 otherError: False
 
                 # Get PO Number
-                PO = re.search(r'Purchase order ([0-9]+)', PDFContents)
+                PO = re.search(r'Purchase order[ ]*([0-9]+)', PDFContents)
                 PONumber = PO[1]
 
                 #multiple items per order
@@ -1056,16 +1056,17 @@ class SOBOT:
         self.logs.append(errorfilename)
         writeListToCSV(errorfilename, self.errors)
 
-        if len(self.nopricedictentry) > 0:
+        if self.nopricedictentry:  # Empty by default, so test for existence should be fastest
             # set output file name
             # including hours and minutes so that this program can be run twice in one day
             baddictfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_NoPriceDictionaryEntry.csv')
             self.logs.append(baddictfilename)
             writeListToCSV(baddictfilename, self.nopricedictentry)
 
-        grnfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_GRNs.csv')
-        self.logs.append(grnfilename)
-        writeListToCSV(grnfilename, self.GRN)
+        if len(self.GRN) > 1:  # Has a header so we need to test the length.
+            grnfilename = datetime.datetime.now().strftime(self.datepath+'%y-%m-%d_%H%M_GRNs.csv')
+            self.logs.append(grnfilename)
+            writeListToCSV(grnfilename, self.GRN)
 
         # save the PO dictionary
         writeListToCSV(self.PODICTIONARYPATH, self.polist)
@@ -1133,6 +1134,7 @@ class SOBOT:
                         skipped += 1
                         continue
                     row -= skipped
+                    # If you get an error here, make sure that the stock projections excel file is current.
                     partcalcs[row].extend([str(s.cell(row, 3).value)])  # extend each row by child part stock
 
             # Add the smallest number of each manufactured part you can
@@ -1183,7 +1185,6 @@ class SOBOT:
                      'november': 11,
                      'december': 12}
 
-        today = datetime.date.today()
 
         # Open workbook and create empty list to store items from workbook
         wb = xlrd.open_workbook('./test.xls')
@@ -1241,23 +1242,23 @@ class SOBOT:
         # Better for visualization and excel doesn't seem to easily/quickly do this
         fulldate = []
         itemstock = 0
-        d = today
+        d = self.today
         lastdate = d + datetime.timedelta(
             days=360)  # put it sufficiently far in the future that the first loop won't get caught
         delta = datetime.timedelta(days=1)
         for i, row in enumerate(activeparts):
-            if row[0] == 'Part :' and d <= today + datetime.timedelta(days=60):
+            if row[0] == 'Part :' and d <= self.today + datetime.timedelta(days=60):
                 if i > 0:  # Populate dates from last PO/SO up to end of forecast range (skip if first part)
-                    while d < today + datetime.timedelta(days=60):
+                    while d < self.today + datetime.timedelta(days=60):
                         fulldate.append(['', '', '', d, 0, itemstock])
                         d += delta
                 fulldate.append(row)  # Append part now - effectively starting new part
                 itemstock = 0  # Reset item stock tracker
-                d = today
+                d = self.today
                 continue
             if row[0] == 'Opening stock':
                 itemstock += float(row[4])  # Add opening stock to tracker
-                row[3] = today  # Insert correct opening date
+                row[3] = self.today  # Insert correct opening date
                 row[4] = 0  # Don't want to show opening stock as purchase
                 fulldate.append(row)
                 continue
@@ -1272,13 +1273,13 @@ class SOBOT:
                 fulldate.append(row)
                 continue  # Keeping same lastdate and d should already be incremented
 
-            if rowdate < today:  # Active entries with due dates before today
+            if rowdate < self.today:  # Active entries with due dates before today
                 row[3] = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
                                        int(row[3].split()[0]))
                 fulldate.append(row)
                 continue
 
-            while d < today + datetime.timedelta(days=60):
+            while d < self.today + datetime.timedelta(days=60):
                 if rowdate > d:
                     fulldate.append(['', '', '', d, 0, itemstock])
                 elif rowdate == d:
@@ -1315,7 +1316,7 @@ class SOBOT:
 
             else:
                 for i, openitem in enumerate(openquanties):
-                    if self.dateTupleToDatetime(openitem[2]) < today and pastdueneeded:  # Make sure we add past due items
+                    if self.dateTupleToDatetime(openitem[2]) < self.today and pastdueneeded:  # Make sure we add past due items
                         sheet.write(rowiterator, 1, str(self.dateTupleToDatetime(openitem[2])))  # We use this convoluted approach because it's more typesafe
                         sheet.write(rowiterator, 2,
                                     0)  # Sticking zeros here because excel doesn't graph correctly if the top row has empty cells
@@ -1345,12 +1346,12 @@ class SOBOT:
 if __name__ == "__main__":
     bot = SOBOT()
     bot.debug()  # leaveunread=True POdictionarycheck=False originfolder='./', destfolder='./', PDFtoText=True
-    #bot.fetchMail()
-    #bot.scrapePDF()
+    bot.fetchMail()
+    bot.scrapePDF()
     bot.parseExcel()
     bot.writeFiles()
     bot.projectStock()
     bot.TEMP()
     bot.calculateManufacturedParts()
-    #bot.sendMail()
+    bot.sendMail()
 

@@ -48,7 +48,7 @@ class FetchMail:
             for file in filename.split('\n'):
                 fnparts = filename.split('.')
 
-                if 'Terms for Goods  Services' in fnparts[0] or 'Packing List' in fnparts[0] or 'invoice' in fnparts[0].lower() or 'Payment Advice Note' in fnparts[0] or 'scan' in fnparts[0].lower(): #don't want terms documents or invoices or scanned documents
+                if 'Terms for Goods  Services' in fnparts[0] or 'Packing List' in fnparts[0] or 'invoice' in fnparts[0].lower() or 'Payment Advice Note' in fnparts[0] or 'scan' in fnparts[0].lower() or 'estes_' in fnparts[0].lower(): #don't want terms documents or invoices or scanned documents
                     skipped.append(fnparts[0] + '.' + fnparts[1].lower())
                 elif fnparts[1].lower() == 'pdf' or 'xls' in fnparts[1].lower():  # Take pdf, xls, and xlsx
                     att_path = os.path.join(self.path + fnparts[0] + '.' + fnparts[1].lower())  # adding i such that file is unique !'Doc1.pdf'

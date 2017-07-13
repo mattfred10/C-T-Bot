@@ -360,7 +360,7 @@ class SOBOT:
 
             # This code should be sufficient to prevent index error below
             if not len(data) or len(data[0]) < 2:  # Throws error on empty excel file and moves on to next file.
-                self.errors.append(['unknown', 'Many', excelFile,"Empty excel file."])
+                self.errors.append(['unknown', 'Many', excelFile, "Empty excel file."])
                 continue
 
             if 'Report Generated' in data[0][0]:
@@ -375,7 +375,7 @@ class SOBOT:
 
                     qtychk = self.checkQuantities(partnumber, quantity)
                     #
-                    # Excel and python both like to trim leading 0s from the part numbers
+                    # Excel and python both like to trim leading 0s from the part numbers (casting as int)
                     # Casting as string when reading the csv and writing to the dict didn't help either
                     # Manually adding check here to improve usability
                     #
@@ -421,6 +421,10 @@ class SOBOT:
                 elif not processed:
                     self.logs.append(excelFile)
 
+            elif 'Primary Vendor' in data[0][0]:
+                company = 'SJOL'
+                self.errors.append([company, 'Many', excelFile, "This appears to be a Sjoelund order."])
+
             elif 'Vendor' in data[0][0]:
                 company = 'SJOL-VEST'
                 for row in data[1:]:
@@ -432,19 +436,24 @@ class SOBOT:
                 except FileExistsError:
                     self.errors.append([company, 'Many', excelFile, "This appears to be a duplicate open order file."])
 
+
             elif 'Order' in data[0][0]:
-                company = 'GE'
-                for row in data[1:]:
-                    try:  # GE empties this cell sometimes. It's shown as various length whitespace and empty. Just catch valueerror
-                        tempdate = xlrd.xldate_as_tuple(float(row[14]), 0)
-                        self.GEopenorders.append([row[9], row[0], (tempdate[0], tempdate[1], tempdate[2]), row[4]])
-                    except ValueError:
-                        self.errors.append(
-                            [company, row[0], excelFile, "Past due or date error."])
-                try:
-                    os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_OO.xlsx')
-                except:
-                    self.errors.append([company, 'Many', excelFile, "This appears to be a duplicate open order file."])
+                if len(data[0]) > 15:
+                    company = 'GE'
+                    for row in data[1:]:
+                        try:  # GE empties this cell sometimes. It's shown as various length whitespace and empty. Just catch valueerror
+                            tempdate = xlrd.xldate_as_tuple(float(row[14]), 0)
+                            self.GEopenorders.append([row[9], row[0], (tempdate[0], tempdate[1], tempdate[2]), row[4]])
+                        except ValueError:
+                            self.errors.append(
+                                [company, row[0], excelFile, "Past due or date error."])
+                    try:
+                        os.rename(excelFile, self.processedpath + self.datestring + '_' + company + '_OO.xlsx')
+                    except:
+                        self.errors.append([company, 'Many', excelFile, "This appears to be a duplicate open order file."])
+                else:
+                    company = 'Vestas'
+                    self.errors.append([company, 'Many', excelFile, "Vestas changed OO format."])
 
             elif 'Ningbo' in data[0][1]:
                 company = 'coop01'

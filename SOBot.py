@@ -340,7 +340,7 @@ class SOBOT:
         """
 
         for badxl in glob.glob(self.unprocessedpath + '*.xls'):  # Check if unknown file
-            print("ERROR: Unexpected excel 2003 file :" + badxl)
+            print("ERROR: Unexpected excel 2003 file: " + badxl)
             self.errors.append(['unknown', 'Many', badxl, "Unexpected excel file type."])
             self.logs.append(badxl)
 
@@ -421,13 +421,21 @@ class SOBOT:
                 elif not processed:
                     self.logs.append(excelFile)
 
+            #SJOL
             elif 'Primary Vendor' in data[0][0]:
                 company = 'SJOL'
                 self.errors.append([company, 'Many', excelFile, "This appears to be a Sjoelund order."])
 
+            #SJOL-VEST
             elif 'Vendor' in data[0][0]:
                 company = 'SJOL-VEST'
                 for row in data[1:]:
+                    # Vestas has a habit of leaving information out of their OO reports
+                    # Check for any missing information and throw an error.
+                    if not row[3] or not row[2] or not row[8] or not row[7]:
+                        self.errors.append([company, row[2], excelFile, "Missing information in VESTSJOL OO report."])
+                        # Don't add this information to the OO data or else you will get an error in the stock projection.
+                        continue
                     tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
                     # [part, po, date, quantity]
                     self.VESTASJOopenorders.append([row[3], row[2], (tempdate[0],tempdate[1],tempdate[2]), row[7]])
@@ -436,7 +444,7 @@ class SOBOT:
                 except FileExistsError:
                     self.errors.append([company, 'Many', excelFile, "This appears to be a duplicate open order file."])
 
-
+            #GE and Vestas(alt)
             elif 'Order' in data[0][0]:
                 if len(data[0]) > 15:
                     company = 'GE'
@@ -455,6 +463,7 @@ class SOBOT:
                     company = 'Vestas'
                     self.errors.append([company, 'Many', excelFile, "Vestas changed OO format."])
 
+            #C&T GRN
             elif 'Ningbo' in data[0][1]:
                 company = 'coop01'
                 invonum = data[6][5].replace('INV. NO:','')
@@ -1111,19 +1120,19 @@ class SOBOT:
         for mfpart in self.mfparts:
             partcalcs = []
             mfqtys = []
+            if self.printstatus:
+                print(mfpart[0].upper())
             # Get parent stock requests (should all be negative)
             try:
-                try:  # Not entirely sure how consistent this capitalization is. Hopefully they don't use Title case.
-                    if self.printstatus:
-                        print(mfpart[0].upper())
+                try:  # Not entirely sure how consistent this capitalization is. Hopefully they don't use Title Case.
                     s = bookcopy.sheet_by_name(mfpart[0].upper()) # These should be unique
                 except:
                     s = bookcopy.sheet_by_name(mfpart[0].lower())
             except:
-                continue  # Some manufactured parts might not be on order. Just move on to the next part if there are no movements.
+                continue  # Some manufactured parts might not be on order (i.e., won't be in projected stock file). Just move on to the next part if there are no movements.
             # Put date and required inventory in list
             for row in range(s.nrows):
-                # Need to pass over variable number of unfullfilled POs and SOs
+                # Need to pass over variable number of unfulfilled POs and SOs
                 # Skipping them will make sure dates line up below
                 if "Opening" in str(s.cell(row, 0).value) or self.dateTupleToDatetime(s.cell(row, 1).value) < self.today:  # change to self.today - testing on old data
                     continue
@@ -1131,9 +1140,9 @@ class SOBOT:
 
             # Append all of the required child parts
             for i in range(len(mfpart)//2):  # Get the other parts and their stock levels - should be @ index 1,3,5, etc.
-                try:
+                try: # Upper vs. lower case can be unpredictable. Try upper first (generally more of them).
                     s = bookcopy.sheet_by_name(mfpart[i * 2 + 1].upper())
-                except:
+                except: # Throws an exception if no sheet is found with that name.
                     s = bookcopy.sheet_by_name(mfpart[i * 2 + 1].lower())
                 mfqtys.append(mfpart[i * 2 + 2])
                 skipped = 0
@@ -1151,9 +1160,7 @@ class SOBOT:
                 # mfqtys should have 1 entry per item and row[2:] should be the same length (i.e., stock for each of the items)
                 limitingpart = min([float(b) / float(a) for a, b in zip(mfqtys, row[2:])])
                 row.extend([limitingpart, float(row[1])+limitingpart])  # row[1] should be negative (requested stock) and limiting part should be positive
-
             mfcalcs.append(partcalcs)
-
 
         for i,part in enumerate(mfcalcs):
             try:
@@ -1252,8 +1259,6 @@ class SOBOT:
         fulldate = []
         itemstock = 0
         d = self.today
-        lastdate = d + datetime.timedelta(
-            days=360)  # put it sufficiently far in the future that the first loop won't get caught
         delta = datetime.timedelta(days=1)
         for i, row in enumerate(activeparts):
             if row[0] == 'Part :' and d <= self.today + datetime.timedelta(days=60):
@@ -1272,15 +1277,20 @@ class SOBOT:
                 fulldate.append(row)
                 continue
 
+            # Has to be defined after the above two conditionals because they don't have dates, causing index errors.
             rowdate = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
                                     int(row[3].split()[0]))
 
-            if rowdate == lastdate:  # Sometimes there are two activities on one date - this is saved from last loop
-                row[3] = lastdate  # Convert date format
+            # Sometimes there are two activities on one date
+            # If the date is the same for 2 or more rows in a row, the activity will be added without incrementing the date
+            if rowdate == d - delta :
+                row[3] = rowdate  # Convert date format
                 itemstock += float(row[4])  # Make stock adjustment
                 row[5] = itemstock
                 fulldate.append(row)
-                continue  # Keeping same lastdate and d should already be incremented
+                continue
+
+
 
             if rowdate < self.today:  # Active entries with due dates before today
                 row[3] = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
@@ -1296,7 +1306,6 @@ class SOBOT:
                     itemstock += float(row[4])  # Make stock adjustment
                     row[5] = itemstock
                     fulldate.append(row)
-                    lastdate = rowdate  # Sometimes there are two activities on one date
                     d += delta  # Need to iterate here so we don't get two rows for the same date
                     break
                 d += delta

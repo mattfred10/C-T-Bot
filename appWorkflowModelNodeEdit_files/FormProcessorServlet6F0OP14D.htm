@@ -1,0 +1,146 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0790)http://ct-us-sql01/efacs/servlet/FormProcessorServlet -->
+<HTML xmlns:number = "http://www.efacs.com/exel.xsltextensions.NumberFormatter" 
+xmlns:evc = "http://www.efacs.com/EVC" xmlns:efacsapplet = 
+"http://www.efacs.com/exel.applet.EfacsApplet" xmlns:doesfileexist = 
+"http://www.efacs.com/exel.fileexist.FileExist" xmlns:de = 
+"http://www.efacs.com/2002/DataEngine" xmlns:date = 
+"http://www.efacs.com/exel.xsltextensions.DateFormatter"><HEAD><META 
+content="IE=5.0000" http-equiv="X-UA-Compatible">
+
+<META content="text/html; charset=utf-8" http-equiv=Content-Type><LINK 
+rel=stylesheet type=text/css 
+href="FormProcessorServlet6F0OP14D_files/cssMain.htm">
+<SCRIPT language=javascript defer>////<![CDATA[
+
+window.formOnload = function () {
+
+	var objForm = eval("window.parent." + window.name.replace("_iframe", ""));
+	objForm.objFrameWindow = window.parent.frames(objForm.id + "_iframe");
+
+	formCreateFields_frmMain(objForm);
+
+	if (window.parent.appTrans_frmMain_addFormBinding)
+		window.parent.appTrans_frmMain_addFormBinding();
+}
+
+window.formCreateFields_frmMain = function (objForm) {
+
+			
+	objForm.addField("type", "xsd:string", "");
+			
+	objForm.addField("description", "xsd:string", "");
+				
+
+	objForm.flgCreatedFields = true;
+	window.document.body.appReady = "true";
+}
+
+window.formPostProcess_frmMain = function (objForm) {
+
+	objForm.setRevisionInfo("001", "", "");
+	var objField;
+			
+	objField = objForm.fields[0];
+	objField.HTMLElement = objForm.getHTMLFieldByRef("type");
+				
+	objField = objForm.fields[1];
+	objField.HTMLElement = objForm.getHTMLFieldByRef("description");
+				
+	
+	if (window.parent.document.body.isDeveloperLicence == false)
+		window.parent.addEvent(window.document.body, "oncontextmenu", window.parent.appTrans_doContextMenu);
+}
+
+
+window.fireQuery = function (objEvent) 
+{
+	if (! objEvent) objEvent = window.event; // Get event details for IE
+	var objBrowserEvent = objEvent.srcElement ? objEvent.srcElement : objEvent.currentTarget;
+
+	var strFormFieldID;
+
+	// Get a ref to the form.
+	var objHTMLForm = window.parent.getParentElement(objBrowserEvent, "FORM");
+	if (objHTMLForm == null) 
+		objHTMLForm = window.parent.getParentElement(objElement, "TR", "editableGridForm");
+	
+	eval("var objForm = window.parent." + objHTMLForm.id.replace("frm", ""));
+
+	// Get the query label's id.
+	var strLabelID = objBrowserEvent.id.replace("lbl_", "");
+
+	// Find the query label on this form.	
+	var objLabels = objHTMLForm.getElementsByTagName("INPUT");
+	var objLabel;
+	for (var intCtr = 0, intLen = objLabels.length; intCtr < intLen; intCtr++)
+	{
+		objLabel = objLabels.item(intCtr);
+		if (objLabel.id == strLabelID)
+		{
+			// Now get the form field ref.
+			strFormFieldID = objLabel.getAttribute("ref");
+			break;
+		}		
+	}
+
+	// Finally get a ref to the form field object itself.	
+	var objFormField = objForm.getFieldByRef(strFormFieldID);
+
+	// and fire the query.
+	if (objFormField != null)
+		objFormField.fireQuery();
+}
+
+
+window.form_onclick = function(objEvent)
+{
+	window.parent.document.getElementById("ContextMenuElement1").style.display = "none";
+	window.parent.document.getElementById("ContextMenuElement2").style.display = "none";
+	window.parent.document.getElementById("ContextMenuElement3").style.display = "none";
+}
+			////]]></SCRIPT>
+
+<META name=GENERATOR content="MSHTML 11.00.10570.1001"></HEAD>
+<BODY 
+onclick="window.parent.appTrans_mainBodyFTEvent(event); form_onclick(event)" 
+tabIndex=-1 ondblclick=window.parent.appTrans_mainBodyFTEvent(event) 
+onload=formOnload() 
+onkeydown="window.parent.appTrans_mainBodyKeyDown(event); window.parent.Form_checkTDonkeydown(this)" 
+style="HEIGHT: 1px; WIDTH: 1px; BACKGROUND-COLOR: transparent" fieldCount="2" 
+compId="frmMain_iframe" frameContent="form">
+<FORM id=frmfrmMain class=form 
+style="WIDTH: 100%; PADDING-BOTTOM: 0px; PADDING-TOP: 0px; PADDING-LEFT: 0px; MARGIN: 0px; PADDING-RIGHT: 0px">
+<TABLE style="WIDTH: 100%" cellSpacing=0 cellPadding=0>
+  <TBODY>
+  <TR>
+    <TD vAlign=middle noWrap><LABEL id=lbl_frmMain_type 
+      class=EfacsLabel>Type</LABEL> </TD>
+    <TD style="PADDING-RIGHT: 10px" vAlign=middle noWrap><INPUT 
+      onchange="window.parent.Form_onchange(this, event)" tabIndex=-1 
+      onkeypress="window.parent.Form_onkeypress(this, event)" 
+      onkeyup="window.parent.Form_onkeyup(this, event)" 
+      onfocus="try {window.parent.Form_onfocus(this, event);} catch (objError) {}" 
+      onblur="try {window.parent.Form_onblur(this, event);} catch (objError) {}" 
+      id=frmMain_type class=ReadBox 
+      onkeydown="window.parent.Form_onkeydown(this, event)" 
+      style="PADDING-LEFT: 2px; MARGIN-LEFT: 5px; PADDING-RIGHT: 2px" 
+      oncontextmenu="window.parent.FormField_doContextMenu(this, event)" 
+      readOnly size=30 isAlwaysDisabled="true" blnIsDisabled="true" 
+      schemaField="true" strTable="workflowmodelnodedesc" datatype="xsd:string" 
+      ref="type" earlparamid=""> </TD>
+    <TD vAlign=middle noWrap><LABEL id=lbl_frmMain_description 
+      class=EfacsLabel>Description</LABEL> </TD>
+    <TD style="PADDING-RIGHT: 10px" vAlign=middle noWrap><INPUT 
+      onchange="window.parent.Form_onchange(this, event)" 
+      onkeypress="window.parent.Form_onkeypress(this, event)" 
+      onkeyup="window.parent.Form_onkeyup(this, event)" 
+      onfocus="try {window.parent.Form_onfocus(this, event);} catch (objError) {}" 
+      onblur="try {window.parent.Form_onblur(this, event);} catch (objError) {}" 
+      id=frmMain_description class=EfacsField 
+      onkeydown="window.parent.Form_onkeydown(this, event)" 
+      style="PADDING-LEFT: 2px; MARGIN-LEFT: 5px; PADDING-RIGHT: 2px" 
+      oncontextmenu="window.parent.FormField_doContextMenu(this, event)" size=60 
+      blnIsDisabled="false" schemaField="true" strTable="workflowmodelnodedesc" 
+      datatype="xsd:string" ref="description" earlparamid=""> 
+</TD></TR></TBODY></TABLE></FORM></BODY></HTML>

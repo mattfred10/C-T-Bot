@@ -36,6 +36,7 @@
 	QUANTITYDICTPATH = .\SOBotSettings\QuantityDictionary.csv
 	
 	# Save path for stock projections and open orders
+	PROJECTEDSTOCK = .\projectedstock.xls
 	STOCKPROJECTIONPATH = .\StockProjection\
 	
     #Email account for the bot. Should be only used by the bot.

@@ -87,6 +87,7 @@ class SOBOT:
         self.abr2days = abr2days()
         self.abr2num = abr2num()
         self.num2days = num2days()
+        self.num2abr = num2abr()
         # Dictionary of minimum lead times for POs key: company, value: time in days
         self.leadtimedictionary = readCSVtodictionary(LEADTIMEDICTIONARYPATH)
         # Ensure that PO item prices match correct values
@@ -413,7 +414,7 @@ class SOBOT:
                     # Vestas has a habit of leaving information out of their OO reports
                     # Check for any missing information and throw an error.
                     if not row[3] or not row[2] or not row[8] or not row[7]:
-                        self.errors.append([company, row[2], excelFile, "Missing information in VESTSJOL OO report."])
+                        self.errors.append([company, row[2], excelFile, "Missing information in SJOL-VEST OO report."])
                         # Don't add this information to the OO data or else you will get an error in the stock projection.
                         continue
                     tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
@@ -540,66 +541,73 @@ class SOBOT:
                 company = 'GEC01'
                 otherError = False
 
-                PONumber = re.search(r'Order Number[\s]+([0-9]+)', PDFContents)[1]
-                POTotal = re.search(r'Total Amt:([0-9.,]+)', PDFContents)[1]
+                try: # Error handling for unmatched regex (NoneType is not subscriptable...)
 
-                datequantity = re.findall(r'Delivery Schedule:([0-9]+)-([A-Z]{3})-([0-9]{2})([0-9,]+)[ ]+EACH', PDFContents)
-                partnumbers = re.findall(r'GE Item: ([A-Z0-9]+)[\s]+Rev: ([0-9]+)', PDFContents) #excluding revision for now
+                    PONumber = re.search(r'Order Number[\s]+([0-9]+)', PDFContents)[1]
+                    POTotal = re.search(r'Total Amt:([0-9.,]+)', PDFContents)[1]
 
-                # here we are moving backwards from 'Hazard Code' because the text in front is unreliable (text behind may be too if they optionally include 'promis shipment date' or 'need by shipment date')
-                # we capture everything including the day of month in case they change from 2 digits to 1 digit
-                prices = re.findall(r'([0-9.]+)-[A-Z]{3}-[0-9 \n]+Hazard', PDFContents)
+                    datequantity = re.findall(r'Delivery Schedule:([0-9]+)-([A-Z]{3})-([0-9]{2})([0-9,]+)[ ]+EACH', PDFContents)
+                    partnumbers = re.findall(r'GE Item: ([A-Z0-9]+)[\s]+Rev: ([0-9]+)', PDFContents) #excluding revision for now
 
-                sumofitems = 0
-                # using delivery dates as a proxy for number of items in order
-                for i,dq in enumerate(datequantity):
-                    # first we will try to strip the day of month using the date grabbed elsewhere
-                    # check if it's one digit or two
-                    if prices[i][-1] == dq[0]:
-                        # take all but the last number
-                        combinedprice = prices[i][0:-1]
-                    else:
-                        # take all but the last two numbers
-                        combinedprice = prices[i][0:-2]
+                    # here we are moving backwards from 'Hazard Code' because the text in front is unreliable (text behind may be too if they optionally include 'promis shipment date' or 'need by shipment date')
+                    # we capture everything including the day of month in case they change from 2 digits to 1 digit
+                    prices = re.findall(r'([0-9.]+)-[A-Z]{3}-[0-9 \n]+Hazard', PDFContents)
 
-                    date = self.checkDate((dq[0], dq[1], dq[2]), company)
-                    date = (date[0], date[1], date[2])
-
-                    partnumber = partnumbers[i][0]
-                    quantity = dq[3]
-                    qtychk = self.checkQuantities(partnumber, quantity)
-
-                    # The price per and item total don't separate in the GE files. Use the quantity sold to find correct values
-                    for n, c in enumerate(combinedprice):
-                        firsthalf = combinedprice[0:0 + n]
-                        if firsthalf == '.' or firsthalf == '':
-                            first = 0.0 #used below
+                    sumofitems = 0
+                    # using delivery dates as a proxy for number of items in order
+                    for i,dq in enumerate(datequantity):
+                        # first we will try to strip the day of month using the date grabbed elsewhere
+                        # check if it's one digit or two
+                        if prices[i][-1] == dq[0]:
+                            # take all but the last number
+                            combinedprice = prices[i][0:-1]
                         else:
-                            first = float(firsthalf)
+                            # take all but the last two numbers
+                            combinedprice = prices[i][0:-2]
 
-                        secondhalf = combinedprice[n:]
-                        if first*float(quantity) == float(secondhalf):
-                            priceper = first
-                            itemtotal = secondhalf
-                            break
+                        date = self.checkDate((dq[0], dq[1], dq[2]), company)
+                        date = (date[0], date[1], date[2])
 
-                    sumofitems += float(itemtotal)
+                        partnumber = partnumbers[i][0]
+                        quantity = dq[3]
+                        qtychk = self.checkQuantities(partnumber, quantity)
 
-                    pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                        # The price per and item total don't separate in the GE files. Use the quantity sold to find correct values
+                        for n, c in enumerate(combinedprice):
+                            firsthalf = combinedprice[0:0 + n]
+                            if firsthalf == '.' or firsthalf == '':
+                                first = 0.0 #used below
+                            else:
+                                first = float(firsthalf)
 
-                    #Don't break the loop here. Want to keep checking for sum of items (i.e., total price).
-                    if pricechk:
-                        self.errors.append([company, PONumber, originalPDF, pricechk])
-                        otherError = True
-                    elif qtychk:
-                        self.errors.append([company, PONumber, originalPDF, qtychk])
-                        otherError = True
-                    elif date[3] and self.datecheck:
-                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                        otherError = True
-                    else:
-                        date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
-                        tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+                            secondhalf = combinedprice[n:]
+                            if first*float(quantity) == float(secondhalf):
+                                priceper = first
+                                itemtotal = secondhalf
+                                break
+
+                        sumofitems += float(itemtotal)
+
+                        pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+
+                        #Don't break the loop here. Want to keep checking for sum of items (i.e., total price).
+                        if pricechk:
+                            self.errors.append([company, PONumber, originalPDF, pricechk])
+                            otherError = True
+                        elif qtychk:
+                            self.errors.append([company, PONumber, originalPDF, qtychk])
+                            otherError = True
+                        elif date[3] and self.datecheck:
+                            self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                            otherError = True
+                        else:
+                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
+                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
+                except TypeError:
+                    self.errors.append([company, 'unknown', originalPDF,
+                                        "PO values could not be found. The file was likely miscategorized or the format has changed."])
+                    otherError = True
 
                 if float(sumofitems) != float(POTotal):
                     self.errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + str(sumofitems), 'PO: ' + POTotal])
@@ -611,7 +619,6 @@ class SOBOT:
                     self.errors.append([company, PONumber, originalPDF,
                                    "File appears to be a duplicate of an already processed PO."])
                 #elif otherError - already appended the error in loop
-
             # Vest01 and Vest05 - Handles some sjol01
             elif 'Vestas Nacelles America' in PDFContents or 'Vestas Blades America Inc' in PDFContents:
                 # currently only handles 1 item per PO. Should be easy to fix if it comes up. Need to see an example first.
@@ -622,131 +629,142 @@ class SOBOT:
                 else:
                     company = 'VEST01'
 
-                # Get PO Number
-                PO = re.search(r'P(K|1)[0-9]{5}', PDFContents)  # Revision number and page number run right into this so it needs to be tight (i.e., 5 numbers)
-                PONumber = PO[0]
-                # 1200, 1240 appear to be formatting information
-                # if there is more than one item, this is going to need to change
-                item = re.search(r'    1200([0-9]{6,})', PDFContents)
+                try: # Error handling for unmatched regex (NoneType is not subscriptable...)
 
-                partnumber = item[1]
+                    # Get PO Number
+                    PO = re.search(r'P(K|1)[0-9]{5}', PDFContents)  # Revision number and page number run right into this so it needs to be tight (i.e., 5 numbers)
+                    PONumber = PO[0]
+                    # 1200, 1240 appear to be formatting information
+                    # if there is more than one item, this is going to need to change
+                    item = re.search(r'    1200([0-9]{6,})', PDFContents)
 
-                # dates separated by '.'
-                datepattern = """
-                1240            #string that appears to be pdf formatting information and consistently leads this line
-                ([0-9 ]{2})     #Day - strictly 2 digits because it runs into 1240. Other dates appear to always be 2 digits but are given flexibility in case format changes.
-                \.              #escaped '.' which is used to divide the days, months and years
-                ([0-9]+)        #Month
-                \.              #escaped '.' which is used to divide the days, months and years
-                ([0-9]+)        #Year
-                """
-                dategroup = re.search(datepattern, PDFContents, re.VERBOSE)
+                    partnumber = item[1]
 
-                if PONumber[1] == 'K':
-                    date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]), company + 'K')
-                else:
-                    date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]), company)
+                    # dates separated by '.'
+                    datepattern = """
+                    1240            #string that appears to be pdf formatting information and consistently leads this line
+                    ([0-9 ]{2})     #Day - strictly 2 digits because it runs into 1240. Other dates appear to always be 2 digits but are given flexibility in case format changes.
+                    \.              #escaped '.' which is used to divide the days, months and years
+                    ([0-9]+)        #Month
+                    \.              #escaped '.' which is used to divide the days, months and years
+                    ([0-9]+)        #Year
+                    """
+                    dategroup = re.search(datepattern, PDFContents, re.VERBOSE)
 
-                pqpattern = """
-                ([0-9,]+)       #quantities allowing for thousands (,)
-                EA[ ]+          #EA is the units and the number of spaces varies by the length of the quantity
-                ([0-9,]+)       #price per item - european notation with no thousands separator
-                [ ]+            #variable number of spaces after unit price
-                ([0-9,]+)       #order total (quanity * unit price)
-                """
-                pricesandquantity = re.search(pqpattern, PDFContents, re.VERBOSE)
+                    if PONumber[1] == 'K':
+                        date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]), company + 'K')
+                    else:
+                        date = self.checkDate((dategroup[1], dategroup[2], dategroup[3]), company)
 
-                quantity = float(pricesandquantity[1].replace(',', '.'))
-                priceper = float(pricesandquantity[2].replace(',','.'))
-                POTotal = float(pricesandquantity[3].replace(',','.'))
+                    pqpattern = """
+                    ([0-9,]+)       #quantities allowing for thousands (,)
+                    EA[ ]+          #EA is the units and the number of spaces varies by the length of the quantity
+                    ([0-9,]+)       #price per item - european notation with no thousands separator
+                    [ ]+            #variable number of spaces after unit price
+                    ([0-9,]+)       #order total (quanity * unit price)
+                    """
+                    pricesandquantity = re.search(pqpattern, PDFContents, re.VERBOSE)
 
-                pricechk = self.checkPriceDictionary(company, partnumber, priceper)
-                qtychk = self.checkQuantities(partnumber,quantity)
+                    quantity = float(pricesandquantity[1].replace(',', '.'))
+                    priceper = float(pricesandquantity[2].replace(',','.'))
+                    POTotal = float(pricesandquantity[3].replace(',','.'))
 
-                if pricechk:
-                    self.errors.append([company, PONumber, originalPDF, pricechk])
-                elif qtychk:
-                    self.errors.append([company, PONumber, originalPDF, qtychk])
-                elif quantity * priceper < POTotal - 1 or quantity * priceper > POTotal + 1:  # Added error margin for floating point math.
-                    self.errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                elif date[3] and self.datecheck:
-                    self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                elif self.checkPOdictionary(PONumber, company):
-                    #####output#####
-                    date = (date[0], date[1], date[2]) # Check date above outputs tuple with 4 entries - remake as 3
-                    self.POContents.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
-                    processed = True
-                else:
-                    self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
+                    pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                    qtychk = self.checkQuantities(partnumber,quantity)
 
+                    if pricechk:
+                        self.errors.append([company, PONumber, originalPDF, pricechk])
+                    elif qtychk:
+                        self.errors.append([company, PONumber, originalPDF, qtychk])
+                    elif quantity * priceper < POTotal - 1 or quantity * priceper > POTotal + 1:  # Added error margin for floating point math.
+                        self.errors.append([company, PONumber, originalPDF, "Incorrect total price or number of items.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                    elif date[3] and self.datecheck:
+                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                    elif self.checkPOdictionary(PONumber, company):
+                        #####output#####
+                        date = (date[0], date[1], date[2]) # Check date above outputs tuple with 4 entries - remake as 3
+                        self.POContents.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+                        processed = True
+                    else:
+                        self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
+
+                except TypeError:
+                    self.errors.append([company, 'unknown', originalPDF, "PO values could not be found. The file was likely miscategorized or the format has changed."])
             # Vest02
             elif 'Vestas - American Wind Technology' in PDFContents:
                 company = 'VEST02'
 
                 otherError = False
 
-                # Get PO Number
-                PO = re.search(r'Purchase order ([0-9]+)', PDFContents)
-                PONumber = PO[1]
+                try: # Error handling for unmatched regex (NoneType is not subscriptable...)
 
-                # multiple items per order
-                # counts occurrences of 'Delivery date' as it appears once per item at the end of the item
-                alldates = re.findall(r'Delivery date: ([0-9]{1,2}) ([A-z]{3}) ([0-9]{4})', PDFContents)
-                # regex pattern 10,20,30, etc item line + (part number) + spaces + (quantity) + EA + spaces + (price per) + (total item price)
+                    # Get PO Number
+                    PO = re.search(r'Purchase order ([0-9]+)', PDFContents)
+                    PONumber = PO[1]
 
-                itemlinepatt ="""
-                [0-9]{1}0       #line items begin with 10, 20, 30, etc.
-                ([0-9]+)        #part number - capture group [0]
-                [ ]+            #variable spaces
-                ([0-9,.]+)      #quantitiy - capture group [1]
-                [ ]EA[ ]+       #single space + EA + variable white space
-                ([0-9.,]+)      #unit price - capture group [2]
-                [ ]+            #variable spaces
-                ([0-9.,]+)      #item total - capture group [3]
-                """
-                itemline = re.findall(itemlinepatt, PDFContents, re.VERBOSE)
+                    # multiple items per order
+                    # counts occurrences of 'Delivery date' as it appears once per item at the end of the item
+                    alldates = re.findall(r'Delivery date: ([0-9]{1,2}) ([A-z]{3}) ([0-9]{4})', PDFContents)
+                    # regex pattern 10,20,30, etc item line + (part number) + spaces + (quantity) + EA + spaces + (price per) + (total item price)
 
-                POTotal = re.findall(r'Net value[ ]+([0-9.,]+)', PDFContents)[0].replace(',', '')
+                    itemlinepatt ="""
+                    [0-9]{1}0       #line items begin with 10, 20, 30, etc.
+                    ([0-9]+)        #part number - capture group [0]
+                    [ ]+            #variable spaces
+                    ([0-9,.]+)      #quantitiy - capture group [1]
+                    [ ]EA[ ]+       #single space + EA + variable white space
+                    ([0-9.,]+)      #unit price - capture group [2]
+                    [ ]+            #variable spaces
+                    ([0-9.,]+)      #item total - capture group [3]
+                    """
+                    itemline = re.findall(itemlinepatt, PDFContents, re.VERBOSE)
 
-                #Need to iterate over these item lists and assign values. Not sure how many are in each.
-                #One delivery date per item is used as a proxy for total number of items
-                #First, we keep track of our total value by adding the line items and check it against the reported PO value at the end
-                sumofitems = 0
+                    POTotal = re.findall(r'Net value[ ]+([0-9.,]+)', PDFContents)[0].replace(',', '')
 
-                for i, date in enumerate(alldates):
-                    # regex only checks line items 10-90. Probably won't ever be 10 items but throw error just in case
-                    if i > 9:
-                        otherError=True
-                        self.errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
-                        break
+                    #Need to iterate over these item lists and assign values. Not sure how many are in each.
+                    #One delivery date per item is used as a proxy for total number of items
+                    #First, we keep track of our total value by adding the line items and check it against the reported PO value at the end
+                    sumofitems = 0
 
-                    date = self.checkDate(date, company)
+                    for i, date in enumerate(alldates):
+                        # regex only checks line items 10-90. Probably won't ever be 10 items but throw error just in case
+                        if i > 9:
+                            otherError=True
+                            self.errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
+                            break
 
-                    partnumber = itemline[i][0]
-                    quantity = itemline[i][1].replace(',', '')
-                    priceper = itemline[i][2].replace(',', '')
-                    itemtotal = itemline[i][3].replace(',', '')
+                        date = self.checkDate(date, company)
 
-                    pricechk = self.checkPriceDictionary(company, partnumber,priceper)
-                    qtychk = self.checkQuantities(partnumber, quantity)
+                        partnumber = itemline[i][0]
+                        quantity = itemline[i][1].replace(',', '')
+                        priceper = itemline[i][2].replace(',', '')
+                        itemtotal = itemline[i][3].replace(',', '')
 
-                    if pricechk:
-                        self.errors.append([company, PONumber, originalPDF, pricechk])
-                        otherError = True
-                    elif qtychk:
-                        self.errors.append([company, PONumber, originalPDF, qtychk])
-                        otherError = True
-                    elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1: #Set this as +/- 1 to deal with floating point precision self.errors
-                        self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                        otherError = True
-                    elif date[3] and self.datecheck:
-                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                        otherError = True
-                    else:
-                        date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3 (ie, remove error message)
-                        tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+                        pricechk = self.checkPriceDictionary(company, partnumber,priceper)
+                        qtychk = self.checkQuantities(partnumber, quantity)
 
-                    sumofitems += float(itemtotal)
+                        if pricechk:
+                            self.errors.append([company, PONumber, originalPDF, pricechk])
+                            otherError = True
+                        elif qtychk:
+                            self.errors.append([company, PONumber, originalPDF, qtychk])
+                            otherError = True
+                        elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1: #Set this as +/- 1 to deal with floating point precision self.errors
+                            self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                            otherError = True
+                        elif date[3] and self.datecheck:
+                            self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                            otherError = True
+                        else:
+                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3 (ie, remove error message)
+                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
+                        sumofitems += float(itemtotal)
+
+                except TypeError:
+                    self.errors.append([company, 'unknown', originalPDF,
+                                        "PO values could not be found. The file was likely miscategorized or the format has changed."])
+                    otherError = True
 
                 # Check comes at end of PO. Above self.errors occur on line items, this check is for total PO price.
                 if float(sumofitems) != float(POTotal):
@@ -757,84 +775,86 @@ class SOBOT:
                     processed = True
                 elif not otherError:
                     self.errors.append([company, PONumber, originalPDF, "File appears to be a duplicate of an already processed PO."])
-
             # Vest04 - very similar to vest02 but there are some spacing issues that are different
             elif 'Vestas Do Brasil Energia' in PDFContents:
                 company = 'vest04'
                 otherError: False
 
-                # Get PO Number
-                PO = re.search(r'Purchase order[ ]*([0-9]+)', PDFContents)
-                PONumber = PO[1]
+                try:  # Error handling for unmatched regex (NoneType is not subscriptable...)
+                    # Get PO Number
+                    PONumber = re.search(r'Purchase order[ ]*([0-9]+)', PDFContents)[1]
 
-                #multiple items per order
-                alldates = re.findall(r'Delivery date: ([0-9]{1,2}) ([A-z]{3}) ([0-9]{4})', PDFContents)
+                    #multiple items per order
+                    alldates = re.findall(r'Delivery date: ([0-9]{1,2}) ([A-z]{3}) ([0-9]{4})', PDFContents)
 
-                # regex pattern = not space to avoid matching 201X from the date + 10,20,30, etc line item number + (part number/quantity together) + ' EA' + (price per)(total item price)
-                alldatapatt = """
-                [^ ][1-9]0          #date, line number and part number and quantity collide forming, e.g., 2017|10|4003452|45, want to match the line item (10,20) but not 20 in 2017, which has a leading space
-                ([0-9,]+)           #part number and quantity - capture group [0]
-                [ ]EA               #units
-                ([0-9.,]+)          #unit price and total price - capture group [1]
-                """
-                alldata = re.findall(alldatapatt, PDFContents, re.VERBOSE)
+                    # regex pattern = not space to avoid matching 201X from the date + 10,20,30, etc line item number + (part number/quantity together) + ' EA' + (price per)(total item price)
+                    alldatapatt = """
+                    [^ ][1-9]0          #date, line number and part number and quantity collide forming, e.g., 2017|10|4003452|45, want to match the line item (10,20) but not 20 in 2017, which has a leading space
+                    ([0-9,]+)           #part number and quantity - capture group [0]
+                    [ ]EA               #units
+                    ([0-9.,]+)          #unit price and total price - capture group [1]
+                    """
+                    alldata = re.findall(alldatapatt, PDFContents, re.VERBOSE)
 
-                POTotal = re.search(r'Net value[ ]+([0-9.,]+)', PDFContents)[1].replace(',', '')
+                    POTotal = re.search(r'Net value[ ]+([0-9.,]+)', PDFContents)[1].replace(',', '')
 
-                sumofitems = 0
-                for i, date in enumerate(alldates):
-                    # regex only checks line items 10-90. Probably won't be 10 items but throw error just in case
-                    if i > 9:
-                        otherError=True
-                        self.errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
-                        break
+                    sumofitems = 0
+                    for i, date in enumerate(alldates):
+                        # regex only checks line items 10-90. Probably won't be 10 items but throw error just in case
+                        if i > 9:
+                            otherError=True
+                            self.errors.append([company, PONumber, originalPDF, "More than 9 line items. File not processed correctly."])
+                            break
 
-                    date = self.checkDate(date, company)
+                        date = self.checkDate(date, company)
 
-                    # Separate the combined terms
-                    priceper = re.match(r'[0-9]+.[0-9]{2}', alldata[i][1])[0]
-                    itemtotal = float(alldata[i][1].replace(priceper, '').replace(',', ''))
+                        # Separate the combined terms
+                        priceper = re.match(r'[0-9]+.[0-9]{2}', alldata[i][1])[0]
+                        itemtotal = float(alldata[i][1].replace(priceper, '').replace(',', ''))
 
-                    # not a great way to separate the quantity from the part number
-                    # comes as '290107241,000' with quantity as 1,000 or '153452600' with quantity as 600
-                    # need to calculate from the item total and the priceper (both of which we have at high confidence)
-                    # Should double check with price dictionary
-                    # this is dangerous though because of rounding self.errors.
-                    quantity = float(itemtotal) / float(priceper.replace(',', ''))
+                        # not a great way to separate the quantity from the part number
+                        # comes as '290107241,000' with quantity as 1,000 or '153452600' with quantity as 600
+                        # need to calculate from the item total and the priceper (both of which we have at high confidence)
+                        # Should double check with price dictionary
+                        # this is dangerous though because of rounding self.errors.
+                        quantity = float(itemtotal) / float(priceper.replace(',', ''))
 
-                    # insert commas so that we match the quantity and not another part of the item string
-                    commaquantity = format(int(quantity), ',d')
-
-                    partnumber = alldata[i][0].replace(commaquantity, '')
-
-                    if re.search(r'per[ ]+10', PDFContents) and len(partnumber) > 7:  # For some reason they occasionally price things in batches but still list quantity as total
-                        quantity = quantity * 10
-                        priceper = float(priceper) / 10
+                        # insert commas so that we match the quantity and not another part of the item string
                         commaquantity = format(int(quantity), ',d')
+
                         partnumber = alldata[i][0].replace(commaquantity, '')
 
-                    pricechk = self.checkPriceDictionary(company, partnumber, priceper)
-                    qtychk = self.checkQuantities(partnumber, quantity)
+                        if re.search(r'per[ ]+10', PDFContents) and len(partnumber) > 7:  # For some reason they occasionally price things in batches but still list quantity as total
+                            quantity = quantity * 10
+                            priceper = float(priceper) / 10
+                            commaquantity = format(int(quantity), ',d')
+                            partnumber = alldata[i][0].replace(commaquantity, '')
 
-                    if pricechk:
-                        self.errors.append([company, PONumber, originalPDF, pricechk])
-                        otherError = True
-                    elif qtychk:
-                        self.errors.append([company, PONumber, originalPDF, qtychk])
-                        otherError = True
-                    elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision self.errors
-                        self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.",'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                        otherError = True
-                    elif date[3] and self.datecheck:
-                        self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                        otherError = True
-                    else:
-                        date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
-                        tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+                        pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                        qtychk = self.checkQuantities(partnumber, quantity)
 
-                    # check if individual line items sum correctly
-                    sumofitems += float(itemtotal)
+                        if pricechk:
+                            self.errors.append([company, PONumber, originalPDF, pricechk])
+                            otherError = True
+                        elif qtychk:
+                            self.errors.append([company, PONumber, originalPDF, qtychk])
+                            otherError = True
+                        elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision self.errors
+                            self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.",'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                            otherError = True
+                        elif date[3] and self.datecheck:
+                            self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                            otherError = True
+                        else:
+                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3
+                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
 
+                        # check if individual line items sum correctly
+                        sumofitems += float(itemtotal)
+
+                except TypeError:
+                    self.errors.append([company, 'unknown', originalPDF, "PO values could not be found. The file was likely miscategorized or the format has changed."])
+                    otherError = True
 
                 # This check only comes at end of PO (end of for loop). The above self.errors can occur on individual line items, so we need to wait for this check.
                 if float(sumofitems) != float(POTotal):
@@ -846,7 +866,6 @@ class SOBOT:
                     processed = True
                 elif not otherError:
                     self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
-
             # sjol01 - direct sales - some other Sjoeland POs use Vestas POs and are handled above
             # elif 'SJØLUND' in PDFContents:
             #     company = 'sjol01'
@@ -885,63 +904,68 @@ class SOBOT:
             #         itemtotal = item[3].replace('.', '').replace(',','.')
             #
             #     PONumber = '/'.join(POnumlist) #join PO numbers to create customer reference
-
             # FRON01
             elif 'Frontier Technologies Brewton' in PDFContents:
                     company = 'FRON01'
                     otherError = False
 
-                    # PO and date are combined
-                    PONumber = re.search(r'America([0-9]+)[0-9]{2}-', PDFContents)[1]
-                    POTotal = re.search(r'Total:\$([0-9.,]+)', PDFContents)[1].replace(',','')
-                    # need to sum individual items
-                    sumofitems = 0
+                    try: # Error handling for unmatched regex (NoneType is not subscriptable...)
 
-                    #Regex = ea + $(priceper) + $(total) + Due: (date) + (partnumber) ea$5.12 $3,584.00 Due:04-Aug-17105W1931P016700H - quantity comes between last letter (=revision) and P### (part of PO)
-                    itemlinepatt = """
-                    ea\$                                    #end of units + literal $
-                    ([0-9,.]+)                              #unit price in US notation - capture group [0]
-                    [ ]\$                                   #space plus $ literal
-                    ([0-9,.]+)                              #item total - capture group [1]
-                    [ ]Due:                                 #text indicated due date
-                    ([0-9]{2})-([A-z]{3})-([0-9]{2})        #date CGs [2-4] day, mon, year
-                    ([A-Z0-9]+)                             #part number
-                    (P[0-9]{3})                             #end of part number - use to guarantee quantity separation
-                    ([0-9,]+)                               #quantity
-                    ([A-Z])Rev                              #revision
-                    """
-                    itemline = re.findall(itemlinepatt, PDFContents, re.VERBOSE)
+                        # PO and date are combined
+                        PONumber = re.search(r'America([0-9]+)[0-9]{2}-', PDFContents)[1]
+                        POTotal = re.search(r'Total:\$([0-9.,]+)', PDFContents)[1].replace(',','')
+                        # need to sum individual items
+                        sumofitems = 0
 
-                    for item in itemline:
-                        priceper = item[0]
+                        #Regex = ea + $(priceper) + $(total) + Due: (date) + (partnumber) ea$5.12 $3,584.00 Due:04-Aug-17105W1931P016700H - quantity comes between last letter (=revision) and P### (part of PO)
+                        itemlinepatt = """
+                        ea\$                                    #end of units + literal $
+                        ([0-9,.]+)                              #unit price in US notation - capture group [0]
+                        [ ]\$                                   #space plus $ literal
+                        ([0-9,.]+)                              #item total - capture group [1]
+                        [ ]Due:                                 #text indicated due date
+                        ([0-9]{2})-([A-z]{3})-([0-9]{2})        #date CGs [2-4] day, mon, year
+                        ([A-Z0-9]+)                             #part number
+                        (P[0-9]{3})                             #end of part number - use to guarantee quantity separation
+                        ([0-9,]+)                               #quantity
+                        ([A-Z])Rev                              #revision
+                        """
+                        itemline = re.findall(itemlinepatt, PDFContents, re.VERBOSE)
 
-                        itemtotal = item[1].replace(',', '')
-                        date = self.checkDate((item[2], item[3], item[4]), company)
-                        partnumber = item[5] + item[6]
-                        quantity = item[7].replace(',', '')
-                        rev = item[8] # Does revision need to be included in part number?
+                        for item in itemline:
+                            priceper = item[0]
 
-                        pricechk = self.checkPriceDictionary(company, partnumber, priceper)
-                        qtychk = self.checkQuantities(partnumber, quantity)
+                            itemtotal = item[1].replace(',', '')
+                            date = self.checkDate((item[2], item[3], item[4]), company)
+                            partnumber = item[5] + item[6]
+                            quantity = item[7].replace(',', '')
+                            rev = item[8] # Does revision need to be included in part number?
 
-                        if pricechk:
-                            self.errors.append([company, PONumber, originalPDF, pricechk])
-                            otherError = True
-                        elif qtychk:
-                            self.errors.append([company, PONumber, originalPDF, qtychk])
-                            otherError = True
-                        elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision self.errors
-                            self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
-                            otherError = True
-                        elif date[3] and self.datecheck:
-                            self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
-                            otherError = True
-                        else:
-                            date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3 (ie, remove error message)
-                            tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+                            pricechk = self.checkPriceDictionary(company, partnumber, priceper)
+                            qtychk = self.checkQuantities(partnumber, quantity)
 
-                        # check if individual line items sum correctly
-                        sumofitems += float(itemtotal)
+                            if pricechk:
+                                self.errors.append([company, PONumber, originalPDF, pricechk])
+                                otherError = True
+                            elif qtychk:
+                                self.errors.append([company, PONumber, originalPDF, qtychk])
+                                otherError = True
+                            elif float(priceper) * int(quantity) > float(itemtotal) + 1 or float(priceper) * int(quantity) < float(itemtotal) - 1:  # Set this as +/- 1 to deal with floating point precision self.errors
+                                self.errors.append([company, PONumber, originalPDF, "Incorrect quantity or price for line item.", 'Calcd: ' + float(quantity) * float(priceper), 'PO: ' + POTotal])
+                                otherError = True
+                            elif date[3] and self.datecheck:
+                                self.errors.append([company, PONumber, originalPDF, "Problem with date.", date])
+                                otherError = True
+                            else:
+                                date = (date[0], date[1], date[2])  # Check date above outputs tuple with 4 entries - remake as 3 (ie, remove error message)
+                                tempitems.append([company, PONumber, date, partnumber, quantity, priceper, POTotal])
+
+                            # check if individual line items sum correctly
+                            sumofitems += float(itemtotal)
+
+                    except TypeError:
+                        self.errors.append([company, 'unknown', originalPDF,"PO values could not be found. The file was likely miscategorized or the format has changed."])
+                        otherError = True
 
                     # This check only comes at end of PO (end of for loop). The above self.errors can occur on individual line items, so we need to wait for this check.
                     if float(sumofitems) != float(POTotal):

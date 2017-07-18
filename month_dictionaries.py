@@ -36,12 +36,12 @@ def abr2num():
              'jun': 6,
              'jul': 7,
              'aug': 8,
-             'sept': 9,
+             'sep': 9,
              'oct': 10,
              'nov': 11,
              'dec': 12}
 
-def abr2num():
+def num2abr():
     return {1 : 'jan',
              2 : 'feb',
              3 : 'mar',

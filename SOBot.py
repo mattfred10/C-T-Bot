@@ -1,5 +1,6 @@
 from email_services import *
 from csvfunctions import *
+from month_dictionaries import *
 
 import PyPDF2
 import re
@@ -60,6 +61,7 @@ class SOBOT:
 
             MFPARTSPATH = re.search(r'MFPARTSPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
+            self.projectedstock = re.search(r'PROJECTEDSTOCK[ ]*=[ ]*([\S]+)', opt)[1]
             self.stockprojectionpath =  re.search(r'STOCKPROJECTIONPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
         # Create output and logging lists
@@ -81,6 +83,10 @@ class SOBOT:
         self.GEopenorders = []
 
         # Create dictionaries and lists used throughout
+        # Month/date count dictionsries (found this easier than the built in Python calendar funciton
+        self.abr2days = abr2days()
+        self.abr2num = abr2num()
+        self.num2days = num2days()
         # Dictionary of minimum lead times for POs key: company, value: time in days
         self.leadtimedictionary = readCSVtodictionary(LEADTIMEDICTIONARYPATH)
         # Ensure that PO item prices match correct values
@@ -249,36 +255,7 @@ class SOBOT:
         Jul, July, JULY) to the same format (DD-MM-YY). Dates should be collected in the correct order by the
         scraper."""
 
-        errstatus = ''  #empty string to store self.errors. if it exists, throw error in scraper
-
-        # Using a list here and going to convert using indicies. dictinoary might be better?
-        monthlist = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec']
-
-        # monthdict = {'jan' : 31,
-        #             'feb' : 28,
-        #             'mar' : 31,
-        #             'apr' : 30,
-        #             'may' : 31,
-        #             'jun' : 30,
-        #             'jul' : 31,
-        #             'aug' : 31,
-        #             'sep' : 30,
-        #             'oct' : 31,
-        #             'nov' : 30,
-        #             'dec' : 31}
-
-        monthdict = {1: 31,
-                     2: 28,
-                     3: 31,
-                     4: 30,
-                     5: 31,
-                     6: 30,
-                     7: 31,
-                     8: 31,
-                     9: 30,
-                     10: 31,
-                     11: 30,
-                     12: 31}
+        errstatus = ''  # empty string to store self.errors. if it exists, throw error in scraper
 
         day = int(datetuple[0])
         month = str(datetuple[1])
@@ -288,30 +265,33 @@ class SOBOT:
             year = year + 2000
 
         # Determine if the date is an abbreviation and convert it to a number
-        if len(month) > 2:
-            if month[0:3].lower() in monthlist:
-                month = monthlist.index(month[0:3].lower()) + 1
-            else:
-                errstatus = 'Error in month name.'
+        try:
+            if len(month) > 2:
+                month = self.abr2num[month[0:3].lower()]
+        except:
+            errstatus = 'Error in month name.'
 
         # Make sure our months are ints
         month = int(month)
 
         if not 1 <= month <= 12:
             errstatus = 'Month out of range.'
-        elif monthdict[month] < day and month != 2:  # only check this if the month is valid, otherwise there will be a key error
+        elif self.num2days[month] < day and month != 2:  # only check this if the month is valid, otherwise there will be a key error
             errstatus = 'Day out of range.'
-        elif month == 2 and year % 4 != 0 and monthdict[month] < day :  # exception for leap year
+        elif month == 2 and year % 4 != 0 and self.num2days[month] < day:  # exception for leap year
             errstatus = 'Day out of range.'
-        elif month == 2 and monthdict[month] + 1 < day:
+        elif month == 2 and self.num2days[month] + 1 < day:
             errstatus = 'Day out of range.'
-        elif datetime.date(year, month, day) < self.today + datetime.timedelta(days=int(self.leadtimedictionary[company])):  # month and day both need to be valid or datetime throws an exception
+        elif datetime.date(year, month, day) < self.today + datetime.timedelta(days=int(
+                self.leadtimedictionary[
+                    company])):  # month and day both need to be valid or datetime throws an exception
             errstatus = 'Due date is earlier than allowed range.'
-        elif (datetime.date(year, month, day) - self.today) > datetime.timedelta(days=self.MAXLEADTIME):  # month and day both need to be valid or datetime throws an exception
+        elif (datetime.date(year, month, day) - self.today) > datetime.timedelta(
+                days=self.MAXLEADTIME):  # month and day both need to be valid or datetime throws an exception
             errstatus = 'Due date more than ' + self.MAXLEADTIME + ' days in the future.'
 
         return day, month, year, errstatus  # consider refactoring to return 3 tuple if good and 4 tuple if bad - rather than check if date[3] check len(date)
-                                            # There are many places below where we do (date[0], date[1], date[2]) would be a lot cleaner
+        # There are many places below where we do (date[0], date[1], date[2]) would be a lot cleaner
 
     def checkQuantities(self, partnumber, quantity):
         try:
@@ -544,7 +524,7 @@ class SOBOT:
                 company = 'Estes'
                 self.errors.append([company, 'Invoice', originalPDF, "Appears to be an invoice. Please double check the document."])
             # C&T invoice
-            elif re.search(r'SI-[0-9]{6}To', PDFContents):  # Should return true if matched
+            elif re.search(r'SI-[0-9]{6}To', PDFContents):
                 company = 'C&T'
                 self.errors.append([company, 'Invoice', originalPDF, "Appears to be an invoice. Please double check the document."])
             # C&T order acknowledgement
@@ -1006,7 +986,7 @@ class SOBOT:
         At the very least, this should be replaced with a scrape of the enquiry webpage so user doesn't have to intervene
         """
 
-        wb = xlrd.open_workbook('./test.xls')
+        wb = xlrd.open_workbook(self.projectedstock)
         data = []
 
         # Collect items from workbook into empty list
@@ -1188,22 +1168,8 @@ class SOBOT:
         Also, it might be easier to fix with all the various breakpoints if something changes.
         """
 
-        monthdict = {'january': 1,
-                     'february': 2,
-                     'march': 3,
-                     'april': 4,
-                     'may': 5,
-                     'june': 6,
-                     'july': 7,
-                     'august': 8,
-                     'september': 9,
-                     'october': 10,
-                     'november': 11,
-                     'december': 12}
-
-
         # Open workbook and create empty list to store items from workbook
-        wb = xlrd.open_workbook('./test.xls')
+        wb = xlrd.open_workbook(self.projectedstock)
         data = []
 
         # Collect items from workbook into empty list
@@ -1278,7 +1244,7 @@ class SOBOT:
                 continue
 
             # Has to be defined after the above two conditionals because they don't have dates, causing index errors.
-            rowdate = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
+            rowdate = datetime.date(int(row[3].split()[2]), self.abr2num[row[3].split()[1][:3].lower()],
                                     int(row[3].split()[0]))
 
             # Sometimes there are two activities on one date
@@ -1293,7 +1259,7 @@ class SOBOT:
 
 
             if rowdate < self.today:  # Active entries with due dates before today
-                row[3] = datetime.date(int(row[3].split()[2]), monthdict[row[3].split()[1].lower()],
+                row[3] = datetime.date(int(row[3].split()[2]), self.abr2num[row[3].split()[1][:3].lower()],
                                        int(row[3].split()[0]))
                 fulldate.append(row)
                 continue

@@ -1,6 +1,6 @@
 from CTemail.email_services import *
 from CTcsv.csvfunctions import *
-from month_dictionaries import *
+from CTmonth_dictionaries.month_dictionaries import *
 
 import PyPDF2
 import re
@@ -43,7 +43,7 @@ class SOBOT:
 
             self.TO = re.search(r'TO[ ]*=[ ]*([\S]+)', opt)[1]
             self.SUBJECT = re.search(r'SUBJECT[ ]*=[ ]*([A-z0-9 .,]+)', opt)[1] + self.datestring
-            self.BODY = re.search(r'BODY[ ]*=[ ]*([A-z0-9 .,%]+)', opt)[1] % self.datestring
+            self.BODY = re.search(r'BODY[ ]*=[ ]*([A-z0-9 .,%]+)', opt)[1].replace(r'\n', '\n') % self.datestring
 
             self.BOTACCOUNT = re.search(r'BOTACCOUNT[ ]*=[ ]*([\S]+)', opt)[1]
             self.BOTPASSWORD = re.search(r'BOTPASSWORD[ ]*=[ ]*([\S]+)', opt)[1]
@@ -65,6 +65,8 @@ class SOBOT:
             self.stockprojectionpath =  re.search(r'STOCKPROJECTIONPATH[ ]*=[ ]*([\S]+)', opt)[1]
 
         # Create output and logging lists
+        # Log list of skipped files for easy scanning. Add to email
+        self.skippedemailfiles = []
         # self.POContents is the so output. Create the header here.
         self.POContents = [['Company', 'PO Number', 'Due Date', 'Item Number', 'Quantity', 'Price Per Item', 'Order Total']]
         # GRN is the invoice output
@@ -195,11 +197,11 @@ class SOBOT:
         if self.printstatus:
             print("Successfully fetched %s emails." % numattachments)  # probably want to log this message
         if numattachments:
-            skipped = []
+
             for entry in emails:
-                skipped.extend(fetcher.save_attachment(entry))
+                self.skippedemailfiles.extend(fetcher.save_attachment(entry))
             if self.printstatus:
-                print(skipped)
+                print(self.skippedemailfiles )
             if self.printstatus and emails:
                 print("Successfully saved attachments.")
         fetcher.close_connection()
@@ -217,6 +219,8 @@ class SOBOT:
         sender = SendMail(self.SENDMAILSERVER, self.SENDPORT, self.BOTACCOUNT.split('/')[0], self.BOTPASSWORD)
         if self.printstatus:
             print("Successfully connected to smtp server.")
+        for skip in self.skippedemailfiles:
+            self.BODY = self.BODY + "\n" + skip
         sender.composemsg(self.TO, self.SUBJECT, self.BODY, self.logs)
         if self.printstatus:
             print("Successfully composed message.")
@@ -316,8 +320,8 @@ class SOBOT:
 
     def parseExcel(self):
         """
-        Hyster Yale POs come in excel format. Collect data from these excel files.
-        Files contain open orders as well.
+        Hyster Yale POs and open order reports from Vestas, Sjol and HY come in excel format. This routine
+        collects data from these excel files.
         """
 
         for badxl in glob.glob(self.unprocessedpath + '*.xls'):  # Check if unknown file

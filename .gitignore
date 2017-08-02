@@ -6,6 +6,8 @@ __pycache__/
 # CT Private Information
 SOBotSettings/
 StockProjection/
+*.xls
+*.pdf
 
 # PDF output
 2017/

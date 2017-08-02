@@ -11,7 +11,8 @@
 	# + date automatically occurs during bot init
     SUBJECT = SO status logs for 
 	# % date automatically occurs during bot init
-    BODY = The status logs for %s are attached. If there is no error log, all of the files were added successfully. Please review all of the files.\r\n\r\n Currently, these files are not being added to the EFACs server.
+	# You may enter \n to indicate line breaks
+    BODY = The status logs for %s are attached. If there is no error log, all of the files were added successfully. Please review this information.\n\nThe following list shows the files that were attached to emails but ignored. In general, this list includes images included in email signatures and invoices. Please scan the list to ensure that no important files were skipped.\n
 	
 	#Lead time in days - throw an error if the lead time is < today + minimum leadtime
 	#or > today + maximum leadtime in the future

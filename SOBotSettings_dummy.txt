@@ -1,0 +1,56 @@
+	##
+	## This is read as plain text. Using python comment notation for convenience.
+	##
+	## The order does not matter. Settings are found using Regex. KEYWORD = ()\r\n
+	## Hopefully this approach improves usability
+	## However, please be careful about the comments
+	##
+	##
+	# Email Content
+    TO = email@email.com
+	# + date automatically occurs during bot init
+    SUBJECT = SO status logs for 
+	# % date automatically occurs during bot init
+    BODY = The status logs for %s are attached. If there is no error log, all of the files were added successfully. Please review all of the files.\r\n\r\n Currently, these files are not being added to the EFACs server.
+	
+	#Lead time in days - throw an error if the lead time is < today + minimum leadtime
+	#or > today + maximum leadtime in the future
+	
+	MAXLEADTIME = 180
+	LEADTIMEDICTIONARYPATH = .\SOBotSettings\LeadtimeDictionary.csv
+	
+	# Number of vestas turbines forecast per week
+	NUMVESTTURBINES = 35
+	# Location of the dictionary of part numbers per turbines
+	# The program multiplies these values so the forecast should only include the per turbine part list and number
+	VESTASPARTFORECASTPATH = .\SOBotSettings\VestasPartForecast.csv
+	
+	# List of manufactured parts and their components
+	MFPARTSPATH = .\SOBotSettings\ManufacturedParts.csv
+	
+	#Path to price dictionary
+	PRICEDICTIONARYPATH = .\SOBotSettings\PriceDictionary.csv
+	#Path to purchase order dictionary - used to avoid duplicate PO entry
+	PODICTIONARYPATH = .\SOBotSettings\PODictionary.csv
+	# Path to quantity dictionary
+	QUANTITYDICTPATH = .\SOBotSettings\QuantityDictionary.csv
+	
+	# Save path for stock projections and open orders
+	PROJECTEDSTOCK = .\projectedstock.xls
+	STOCKPROJECTIONPATH = .\StockProjection\
+	
+    #Email account for the bot. Should be only used by the bot.
+    BOTACCOUNT = email@email.com
+	#Password for said account
+    BOTPASSWORD = hunter2
+    #Fetch variables
+	#imap server
+    FETCHMAILSERVER = outlook.office365.com
+    #Send variables
+	#smtp server
+    SENDPORT = 587
+    SENDMAILSERVER = smtp.office365.com
+    
+	#attachment file names are generated during scraping
+    #PATH = attachment path - must be a list
+    

@@ -492,7 +492,6 @@ class SOBOT:
             # open PDF
             pdfFileObj = open(originalPDF, 'rb')
 
-
             # Strict=False prevents some automatic error correction from executing (changing indices of xref table).
             # If the correction fails, the program halts. This off by one error is not catastrophic, so it should be fine to pass.
             try:  # There are other errors that could occur. Just going to catch them all and continue to next file.
@@ -976,7 +975,6 @@ class SOBOT:
                         processed = True
                     elif not otherError:
                         self.errors.append([company, PONumber, originalPDF,"File appears to be a duplicate of an already processed PO."])
-
             # Scanned document
             elif not PDFContents:
                 company = 'unknown'
@@ -1279,8 +1277,6 @@ class SOBOT:
                 row[5] = itemstock
                 fulldate.append(row)
                 continue
-
-
 
             if rowdate < self.today:  # Active entries with due dates before today
                 row[3] = datetime.date(int(row[3].split()[2]), self.abr2num[row[3].split()[1][:3].lower()],

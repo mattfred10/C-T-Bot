@@ -1,5 +1,5 @@
-from email_services import *
-from csvfunctions import *
+from CTemail.email_services import *
+from CTcsv.csvfunctions import *
 from month_dictionaries import *
 
 import PyPDF2
@@ -417,7 +417,14 @@ class SOBOT:
                         self.errors.append([company, row[2], excelFile, "Missing information in SJOL-VEST OO report."])
                         # Don't add this information to the OO data or else you will get an error in the stock projection.
                         continue
-                    tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
+                    # Also include random white space in these cells
+                    # Throws a value error string to float tabs/spaces
+                    try:
+                        tempdate = xlrd.xldate_as_tuple(float(row[8]), 0)
+                    except ValueError:
+                        self.errors.append([company, row[2], excelFile, "Missing information/incorrect data in SJOL-VEST OO report."])
+                        continue
+
                     # [part, po, date, quantity]
                     self.VESTASJOopenorders.append([row[3], row[2], (tempdate[0],tempdate[1],tempdate[2]), row[7]])
                 try:

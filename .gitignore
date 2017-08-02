@@ -3,8 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# SOBot settings
+# CT Private Information
 SOBotSettings/
+StockProjection/
 
 # PDF output
 2017/
